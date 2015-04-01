@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Validate basic values",
+  "type": "object",
+    "dependencies": {
+      "TestDep": ["Conditional"]
+    },
+    "properties": {
+      "Code": {
+        "type": "string"
+      },
+      "TestDep": {
+        "type": "string"
+      },
+      "Bool": {
+        "type": "boolean"
+      },
+      "Int": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "Email": {
+        "type": "string",
+        "pattern": "{{.Email}}"
+      },
+      "Array": {
+        "type": "array",
+        "items": {
+          "oneOf": [
+            { "type": "integer" }
+          ]
+        }
+      }
+    },
+
+    "required": ["Code", "Bool", "Int", "Email", "Array"]
+}
