@@ -8,8 +8,9 @@ var (
 	Verbose bool
 )
 
-func Init(verbose bool) {
+func Init(verbose bool) error {
 	Verbose = verbose
+	return nil
 }
 
 func Debug(format string, v ...interface{}) {
