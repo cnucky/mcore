@@ -3,9 +3,9 @@ package main
 import (
 	"errors"
 	"fmt"
-	"goutils/gosanitize/rule"
-	"goutils/gosanitize/util"
-	"goutils/gosanitize/validate"
+	"github.com/xsnews/microservice-core/gosanitize/rule"
+	"github.com/xsnews/microservice-core/gosanitize/util"
+	"github.com/xsnews/microservice-core/gosanitize/validate"
 	"io/ioutil"
 	"net"
 	"strings"
