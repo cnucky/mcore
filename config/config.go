@@ -1,11 +1,9 @@
-package configloader
+package config
 
 import (
 	"encoding/json"
 	"os"
 )
-
-var Prefs *interface{}
 
 func Load(filename string, prefs interface{}) error {
 	f, err := os.Open(filename)
@@ -13,13 +11,5 @@ func Load(filename string, prefs interface{}) error {
 		return err
 	}
 	defer f.Close()
-
-	dec := json.NewDecoder(f)
-	err = dec.Decode(&prefs)
-	if err != nil {
-		return err
-	}
-	Prefs = &prefs
-
-	return nil
+	return json.NewDecoder(f).Decode(&prefs)
 }
