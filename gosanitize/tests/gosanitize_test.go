@@ -39,15 +39,17 @@ func init() {
 }
 
 func BenchmarkValidate(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		TestValues1 := map[string]string{
-			"Code":  "Hello World",
-			"Int":   "10",
-			"Bool":  "true",
-			"Email": "test@gmail.com",
-		}
+	var validate bool
 
-		validate := RunValidate("test1", "./schemas/test1.json", &TestInput1{}, &TestValues1)
+	TestValues1 := map[string]string{
+		"Code":  "Hello World",
+		"Int":   "10",
+		"Bool":  "true",
+		"Email": "test@gmail.com",
+	}
+
+	for i := 0; i < b.N; i++ {
+		validate = RunValidate("test1", "./schemas/test1.json", &TestInput1{}, &TestValues1)
 		if !validate {
 			b.FailNow()
 		}
