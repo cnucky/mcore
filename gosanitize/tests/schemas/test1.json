@@ -22,16 +22,8 @@
       "Email": {
         "type": "string",
         "pattern": "{{.Email}}"
-      },
-      "Array": {
-        "type": "array",
-        "items": {
-          "oneOf": [
-            { "type": "integer" }
-          ]
-        }
       }
     },
 
-    "required": ["Code", "Bool", "Int", "Email", "Array"]
+    "required": ["Code", "Bool", "Int", "Email"]
 }

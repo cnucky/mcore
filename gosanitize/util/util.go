@@ -3,6 +3,9 @@ package util
 import (
 	"errors"
 	"fmt"
+	"github.com/xsnews/microservice-core/gosanitize/rule"
+	"github.com/xsnews/microservice-core/gosanitize/validate"
+	"io/ioutil"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -75,4 +78,36 @@ func Set(field *reflect.Value, value string) error {
 	}
 
 	return nil
+}
+
+/* Helper function to validate a struct (params) with values (values) against a json schema (filename) */
+func Validate(id string, filename string, params interface{}, values *map[string]string) bool {
+	/* Load schema */
+	schema, err := ioutil.ReadFile(filename)
+	if err != nil {
+		panic(err)
+	}
+
+	/* Inject input values from map into params */
+	err = LoadFromMap(params, *values)
+	if err != nil {
+		return false
+	}
+
+	/* Create param struct and get validator */
+	v := validate.NewValidator(id, schema, params)
+
+	/* Validate input values with the json schema */
+	validateOk, _ := v.Validate()
+	if !validateOk {
+		return false
+	}
+
+	r := rule.NewValidator(id, params)
+	ruleOk, _ := r.Validate()
+	if !ruleOk {
+		return false
+	}
+
+	return true
 }
