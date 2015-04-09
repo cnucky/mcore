@@ -47,7 +47,10 @@ func BenchmarkValidate(b *testing.B) {
 			"Email": "test@gmail.com",
 		}
 
-		RunValidate("test1", "./schemas/test1.json", &TestInput1{}, &TestValues1)
+		validate := RunValidate("test1", "./schemas/test1.json", &TestInput1{}, &TestValues1)
+		if !validate {
+			b.FailNow()
+		}
 	}
 }
 
