@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/xsnews/microservice-core/gosanitize/rule"
 	"github.com/xsnews/microservice-core/gosanitize/validate"
-	"io/ioutil"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -81,15 +80,9 @@ func Set(field *reflect.Value, value string) error {
 }
 
 /* Helper function to validate a struct (params) with values (values) against a json schema (filename) */
-func Validate(id string, filename string, params interface{}, values *map[string]string) bool {
-	/* Load schema */
-	schema, err := ioutil.ReadFile(filename)
-	if err != nil {
-		panic(err)
-	}
-
+func Validate(id string, schema []byte, params interface{}, values *map[string]string) bool {
 	/* Inject input values from map into params */
-	err = LoadFromMap(params, *values)
+	err := LoadFromMap(params, *values)
 	if err != nil {
 		return false
 	}
