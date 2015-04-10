@@ -4,8 +4,12 @@ import (
 	"errors"
 	"github.com/xsnews/microservice-core/gosanitize/rule"
 	"github.com/xsnews/microservice-core/gosanitize/util"
+	"io/ioutil"
 	"testing"
 )
+
+var SchemaId string
+var SchemaContent []byte
 
 /* Struct of all input keys */
 type TestInput1 struct {
@@ -33,6 +37,18 @@ func RuleGeneric(obj interface{}) error {
 func init() {
 	rule.AddRule("RuleField", RuleField)
 	rule.AddRule("RuleGeneric", RuleGeneric)
+
+	SchemaId = "test1"
+	SchemaContent = LoadSchema("./schemas/test1.json")
+}
+
+func LoadSchema(filename string) []byte {
+	schema, err := ioutil.ReadFile(filename)
+	if err != nil {
+		panic(err)
+	}
+
+	return schema
 }
 
 func BenchmarkValidate(b *testing.B) {
@@ -46,7 +62,7 @@ func BenchmarkValidate(b *testing.B) {
 	}
 
 	for i := 0; i < b.N; i++ {
-		validate = util.Validate("test1", "./schemas/test1.json", &TestInput1{}, &TestValues1)
+		validate = util.Validate(SchemaId, SchemaContent, &TestInput1{}, &TestValues1)
 		if !validate {
 			b.FailNow()
 		}
@@ -61,7 +77,7 @@ func TestInputIsValidOK(t *testing.T) {
 		"Email": "test@gmail.com",
 	}
 
-	validate := util.Validate("test1", "./schemas/test1.json", &TestInput1{}, &TestValues1)
+	validate := util.Validate(SchemaId, SchemaContent, &TestInput1{}, &TestValues1)
 	if !validate {
 		t.FailNow()
 	}
@@ -77,7 +93,7 @@ func TestDependencyOK(t *testing.T) {
 		"Email":       "test@gmail.com",
 	}
 
-	validate := util.Validate("test1", "./schemas/test1.json", &TestInput1{}, &TestValues1)
+	validate := util.Validate(SchemaId, SchemaContent, &TestInput1{}, &TestValues1)
 	if !validate {
 		t.FailNow()
 	}
@@ -92,7 +108,7 @@ func TestDependencyFail(t *testing.T) {
 		"Email":   "test@gmail.com",
 	}
 
-	validate := util.Validate("test1", "./schemas/test1.json", &TestInput1{}, &TestValues1)
+	validate := util.Validate(SchemaId, SchemaContent, &TestInput1{}, &TestValues1)
 	if validate {
 		t.FailNow()
 	}
@@ -105,7 +121,7 @@ func TestMissingArgFail(t *testing.T) {
 		"Email": "test@gmail.com",
 	}
 
-	validate := util.Validate("test1", "./schemas/test1.json", &TestInput1{}, &TestValues1)
+	validate := util.Validate(SchemaId, SchemaContent, &TestInput1{}, &TestValues1)
 	if validate {
 		t.FailNow()
 	}
@@ -119,7 +135,7 @@ func TestRegexMatchFail(t *testing.T) {
 		"Email": "t est@gmail.com",
 	}
 
-	validate := util.Validate("test1", "./schemas/test1.json", &TestInput1{}, &TestValues1)
+	validate := util.Validate(SchemaId, SchemaContent, &TestInput1{}, &TestValues1)
 	if validate {
 		t.FailNow()
 	}
@@ -133,7 +149,7 @@ func TestFieldRuleFail(t *testing.T) {
 		"Email": "test@no.such.domain",
 	}
 
-	validate := util.Validate("test1", "./schemas/test1.json", &TestInput1{}, &TestValues1)
+	validate := util.Validate(SchemaId, SchemaContent, &TestInput1{}, &TestValues1)
 	if validate {
 		t.FailNow()
 	}
