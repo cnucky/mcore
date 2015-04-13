@@ -68,32 +68,42 @@ func SetSlice(field *reflect.Value, v interface{}) error {
 
 	var newSlice reflect.Value
 	var newSliceType reflect.Type
-	newSliceElem := s.Index(0).Kind()
+	newSliceElem := field.Type()
 
 	/* TODO: Reflect fields */
 	switch newSliceElem {
-	case reflect.String:
+	case reflect.TypeOf([]string{}):
 		newSliceType = reflect.TypeOf([]string{})
-	case reflect.Int:
+	case reflect.TypeOf([]int{}):
 		newSliceType = reflect.TypeOf([]int{})
-	case reflect.Bool:
+	case reflect.TypeOf([]bool{}):
 		newSliceType = reflect.TypeOf([]bool{})
 	}
 
 	newSlice = reflect.MakeSlice(newSliceType, s.Len(), s.Cap())
 
 	switch newSliceElem {
-	case reflect.String:
+	case reflect.TypeOf([]string{}):
 		for i := 0; i < s.Len(); i++ {
 			newSlice.Index(i).SetString(s.Index(i).String())
 		}
-	case reflect.Int:
+	case reflect.TypeOf([]int{}):
 		for i := 0; i < s.Len(); i++ {
-			newSlice.Index(i).SetInt(s.Index(i).Int())
+			convertedValue, err := strconv.ParseInt(s.Index(i).String(), 0, 0)
+			if err != nil {
+				return err
+			}
+
+			newSlice.Index(i).SetInt(convertedValue)
 		}
-	case reflect.Bool:
+	case reflect.TypeOf([]bool{}):
 		for i := 0; i < s.Len(); i++ {
-			newSlice.Index(i).SetBool(s.Index(i).Bool())
+			convertedValue, err := strconv.ParseBool(s.Index(i).String())
+			if err != nil {
+				return err
+			}
+
+			newSlice.Index(i).SetBool(convertedValue)
 		}
 	}
 
@@ -148,8 +158,6 @@ func Validate(id string, schema []byte, params interface{}, values *map[string]i
 
 	/* Create param struct and get validator */
 	v := validate.NewValidator(id, schema, params)
-
-	fmt.Println(params)
 
 	/* Validate input values with the json schema */
 	validateOk, _ := v.Validate()
