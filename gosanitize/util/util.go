@@ -11,13 +11,13 @@ import (
 )
 
 /* Load params from map */
-func LoadFromMap(params interface{}, values map[string]string) error {
+func LoadFromMap(params interface{}, values map[string]interface{}) error {
 	s := reflect.Indirect(reflect.ValueOf(params))
 	for num := 0; num < s.NumField(); num++ {
 		field := s.Field(num)
 		fieldType := s.Type().Field(num)
 		postValue := values[fieldType.Name]
-		if postValue == "" {
+		if postValue == nil {
 			continue
 		}
 
@@ -53,11 +53,70 @@ func LoadFromRequest(params interface{}, r *http.Request) error {
 	return nil
 }
 
-/* Convert input value and set field */
-func Set(field *reflect.Value, value string) error {
+func SetSlice(field *reflect.Value, v interface{}) error {
+	/* Check if field is settable */
 	if !field.CanSet() {
 		return errors.New(fmt.Sprintf("Can't set field '%s'", field))
 	}
+
+	if reflect.ValueOf(v).Kind() != reflect.Slice {
+		return errors.New("Not a slice")
+	}
+
+	/* Reflect tpe of slice */
+	s := reflect.ValueOf(v)
+
+	var newSlice reflect.Value
+	var newSliceType reflect.Type
+	newSliceElem := s.Index(0).Kind()
+
+	/* TODO: Reflect fields */
+	switch newSliceElem {
+	case reflect.String:
+		newSliceType = reflect.TypeOf([]string{})
+	case reflect.Int:
+		newSliceType = reflect.TypeOf([]int{})
+	case reflect.Bool:
+		newSliceType = reflect.TypeOf([]bool{})
+	}
+
+	newSlice = reflect.MakeSlice(newSliceType, s.Len(), s.Cap())
+
+	switch newSliceElem {
+	case reflect.String:
+		for i := 0; i < s.Len(); i++ {
+			newSlice.Index(i).SetString(s.Index(i).String())
+		}
+	case reflect.Int:
+		for i := 0; i < s.Len(); i++ {
+			newSlice.Index(i).SetInt(s.Index(i).Int())
+		}
+	case reflect.Bool:
+		for i := 0; i < s.Len(); i++ {
+			newSlice.Index(i).SetBool(s.Index(i).Bool())
+		}
+	}
+
+	field.Set(newSlice)
+	return nil
+}
+
+/* Convert input value and set field */
+func Set(field *reflect.Value, v interface{}) error {
+	var value string
+
+	/* Check if field is settable */
+	if !field.CanSet() {
+		return errors.New(fmt.Sprintf("Can't set field '%s'", field))
+	}
+
+	/* Is it a slice? */
+	if reflect.ValueOf(v).Kind() == reflect.Slice {
+		return SetSlice(field, v)
+	}
+
+	/* Cast value, reflect and set it */
+	value = v.(string)
 
 	switch field.Kind() {
 	case reflect.String:
@@ -80,7 +139,7 @@ func Set(field *reflect.Value, value string) error {
 }
 
 /* Helper function to validate a struct (params) with values (values) against a json schema (filename) */
-func Validate(id string, schema []byte, params interface{}, values *map[string]string) bool {
+func Validate(id string, schema []byte, params interface{}, values *map[string]interface{}) bool {
 	/* Inject input values from map into params */
 	err := LoadFromMap(params, *values)
 	if err != nil {
@@ -89,6 +148,8 @@ func Validate(id string, schema []byte, params interface{}, values *map[string]s
 
 	/* Create param struct and get validator */
 	v := validate.NewValidator(id, schema, params)
+
+	fmt.Println(params)
 
 	/* Validate input values with the json schema */
 	validateOk, _ := v.Validate()
