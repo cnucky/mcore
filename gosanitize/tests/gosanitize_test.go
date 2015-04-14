@@ -54,7 +54,7 @@ func LoadSchema(filename string) []byte {
 func BenchmarkValidate(b *testing.B) {
 	var validate bool
 
-	TestValues1 := map[string]string{
+	TestValues1 := map[string]interface{}{
 		"Code":  "Hello World",
 		"Int":   "10",
 		"Bool":  "true",
@@ -70,7 +70,7 @@ func BenchmarkValidate(b *testing.B) {
 }
 
 func TestInputIsValidOK(t *testing.T) {
-	TestValues1 := map[string]string{
+	TestValues1 := map[string]interface{}{
 		"Code":  "Hello World",
 		"Int":   "10",
 		"Bool":  "true",
@@ -84,7 +84,7 @@ func TestInputIsValidOK(t *testing.T) {
 }
 
 func TestDependencyOK(t *testing.T) {
-	TestValues1 := map[string]string{
+	TestValues1 := map[string]interface{}{
 		"Code":        "Hello World",
 		"TestDep":     "wat",
 		"Conditional": "ok",
@@ -100,7 +100,7 @@ func TestDependencyOK(t *testing.T) {
 }
 
 func TestDependencyFail(t *testing.T) {
-	TestValues1 := map[string]string{
+	TestValues1 := map[string]interface{}{
 		"Code":    "Hello World",
 		"TestDep": "wat",
 		"Int":     "10",
@@ -115,7 +115,7 @@ func TestDependencyFail(t *testing.T) {
 }
 
 func TestMissingArgFail(t *testing.T) {
-	TestValues1 := map[string]string{
+	TestValues1 := map[string]interface{}{
 		"Int":   "10",
 		"Bool":  "true",
 		"Email": "test@gmail.com",
@@ -128,7 +128,7 @@ func TestMissingArgFail(t *testing.T) {
 }
 
 func TestRegexMatchFail(t *testing.T) {
-	TestValues1 := map[string]string{
+	TestValues1 := map[string]interface{}{
 		"Code":  "Hello World",
 		"Int":   "10",
 		"Bool":  "true",
@@ -142,7 +142,7 @@ func TestRegexMatchFail(t *testing.T) {
 }
 
 func TestFieldRuleFail(t *testing.T) {
-	TestValues1 := map[string]string{
+	TestValues1 := map[string]interface{}{
 		"Code":  "Hello World",
 		"Int":   "10",
 		"Bool":  "true",
@@ -150,6 +150,21 @@ func TestFieldRuleFail(t *testing.T) {
 	}
 
 	validate := util.Validate(SchemaId, SchemaContent, &TestInput1{}, &TestValues1)
+	if validate {
+		t.FailNow()
+	}
+}
+
+type TestInput2 struct {
+	Array []int `json:",omitempty"`
+}
+
+func TestArray(t *testing.T) {
+	TestValues2 := map[string]interface{}{
+		"Array": []string{"10", "20"},
+	}
+
+	validate := util.Validate(SchemaId, SchemaContent, &TestInput2{}, &TestValues2)
 	if validate {
 		t.FailNow()
 	}
