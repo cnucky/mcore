@@ -19,6 +19,10 @@
         "type": "integer",
         "minimum": 1
       },
+      "Float": {
+        "type": "number",
+        "minimum": 1
+      },
       "Email": {
         "type": "string",
         "pattern": "{{.Email}}"

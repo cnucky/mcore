@@ -87,6 +87,15 @@ func SetSlice(field *reflect.Value, v interface{}) error {
 		for i := 0; i < s.Len(); i++ {
 			newSlice.Index(i).SetString(s.Index(i).String())
 		}
+	case reflect.TypeOf([]float64{}):
+		for i := 0; i < s.Len(); i++ {
+			convertedValue, err := strconv.ParseFloat(s.Index(i).String(), 64)
+			if err != nil {
+				return err
+			}
+
+			newSlice.Index(i).SetFloat(convertedValue)
+		}
 	case reflect.TypeOf([]int{}):
 		for i := 0; i < s.Len(); i++ {
 			convertedValue, err := strconv.ParseInt(s.Index(i).String(), 0, 0)
@@ -129,6 +138,12 @@ func Set(field *reflect.Value, v interface{}) error {
 	value = v.(string)
 
 	switch field.Kind() {
+	case reflect.Float64:
+		convertedValue, err := strconv.ParseFloat(value, 64)
+		if err != nil {
+			return err
+		}
+		field.SetFloat(convertedValue)
 	case reflect.String:
 		field.SetString(value)
 	case reflect.Int:

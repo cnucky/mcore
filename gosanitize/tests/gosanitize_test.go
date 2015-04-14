@@ -17,6 +17,7 @@ type TestInput1 struct {
 	TestDep     string    `json:",omitempty"`
 	Conditional string    `json:",omitempty"`
 	Int         int       `json:",omitempty"`
+	Float       float64   `json:",omitempty"`
 	Bool        bool      `json:",omitempty"`
 	Email       string    `json:",omitempty" rule:"RuleField"`   // Rule for extended validation
 	_           rule.Rule `json:",omitempty" rule:"RuleGeneric"` // Generic validation rule not specific to a field
@@ -57,6 +58,7 @@ func BenchmarkValidate(b *testing.B) {
 	TestValues1 := map[string]interface{}{
 		"Code":  "Hello World",
 		"Int":   "10",
+		"Float": "1.5",
 		"Bool":  "true",
 		"Email": "test@gmail.com",
 	}
@@ -73,6 +75,7 @@ func TestInputIsValidOK(t *testing.T) {
 	TestValues1 := map[string]interface{}{
 		"Code":  "Hello World",
 		"Int":   "10",
+		"Float": "1.5",
 		"Bool":  "true",
 		"Email": "test@gmail.com",
 	}
@@ -89,6 +92,7 @@ func TestDependencyOK(t *testing.T) {
 		"TestDep":     "wat",
 		"Conditional": "ok",
 		"Int":         "10",
+		"Float":       "1.5",
 		"Bool":        "true",
 		"Email":       "test@gmail.com",
 	}
@@ -104,6 +108,7 @@ func TestDependencyFail(t *testing.T) {
 		"Code":    "Hello World",
 		"TestDep": "wat",
 		"Int":     "10",
+		"Float":   "1.5",
 		"Bool":    "true",
 		"Email":   "test@gmail.com",
 	}
@@ -131,6 +136,7 @@ func TestRegexMatchFail(t *testing.T) {
 	TestValues1 := map[string]interface{}{
 		"Code":  "Hello World",
 		"Int":   "10",
+		"Float": "1.5",
 		"Bool":  "true",
 		"Email": "t est@gmail.com",
 	}
@@ -145,6 +151,7 @@ func TestFieldRuleFail(t *testing.T) {
 	TestValues1 := map[string]interface{}{
 		"Code":  "Hello World",
 		"Int":   "10",
+		"Float": "1.5",
 		"Bool":  "true",
 		"Email": "test@no.such.domain",
 	}
