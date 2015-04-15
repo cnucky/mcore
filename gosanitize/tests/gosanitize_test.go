@@ -68,7 +68,7 @@ func BenchmarkValidate(b *testing.B) {
 	}
 
 	for i := 0; i < b.N; i++ {
-		validate = util.Validate("test1", SchemaContent["test1"], &TestInput1{}, &TestValues1)
+		validate, _ = util.Validate("test1", SchemaContent["test1"], &TestInput1{}, &TestValues1)
 		if !validate {
 			b.FailNow()
 		}
@@ -84,7 +84,7 @@ func TestInputIsValidOK(t *testing.T) {
 		"Email": "test@gmail.com",
 	}
 
-	validate := util.Validate("test1", SchemaContent["test1"], &TestInput1{}, &TestValues1)
+	validate, _ := util.Validate("test1", SchemaContent["test1"], &TestInput1{}, &TestValues1)
 	if !validate {
 		t.FailNow()
 	}
@@ -101,7 +101,7 @@ func TestDependencyOK(t *testing.T) {
 		"Email":       "test@gmail.com",
 	}
 
-	validate := util.Validate("test1", SchemaContent["test1"], &TestInput1{}, &TestValues1)
+	validate, _ := util.Validate("test1", SchemaContent["test1"], &TestInput1{}, &TestValues1)
 	if !validate {
 		t.FailNow()
 	}
@@ -117,7 +117,7 @@ func TestDependencyFail(t *testing.T) {
 		"Email":   "test@gmail.com",
 	}
 
-	validate := util.Validate("test1", SchemaContent["test1"], &TestInput1{}, &TestValues1)
+	validate, _ := util.Validate("test1", SchemaContent["test1"], &TestInput1{}, &TestValues1)
 	if validate {
 		t.FailNow()
 	}
@@ -130,7 +130,7 @@ func TestMissingArgFail(t *testing.T) {
 		"Email": "test@gmail.com",
 	}
 
-	validate := util.Validate("test1", SchemaContent["test1"], &TestInput1{}, &TestValues1)
+	validate, _ := util.Validate("test1", SchemaContent["test1"], &TestInput1{}, &TestValues1)
 	if validate {
 		t.FailNow()
 	}
@@ -145,7 +145,7 @@ func TestRegexMatchFail(t *testing.T) {
 		"Email": "t est@gmail.com",
 	}
 
-	validate := util.Validate("test1", SchemaContent["test1"], &TestInput1{}, &TestValues1)
+	validate, _ := util.Validate("test1", SchemaContent["test1"], &TestInput1{}, &TestValues1)
 	if validate {
 		t.FailNow()
 	}
@@ -160,7 +160,7 @@ func TestFieldRuleFail(t *testing.T) {
 		"Email": "test@no.such.domain",
 	}
 
-	validate := util.Validate("test1", SchemaContent["test1"], &TestInput1{}, &TestValues1)
+	validate, _ := util.Validate("test1", SchemaContent["test1"], &TestInput1{}, &TestValues1)
 	if validate {
 		t.FailNow()
 	}
@@ -175,7 +175,7 @@ func TestArray(t *testing.T) {
 		"Array": []string{"10", "20"},
 	}
 
-	validate := util.Validate("test1", SchemaContent["test2"], &TestInput2{}, &TestValues2)
+	validate, _ := util.Validate("test1", SchemaContent["test2"], &TestInput2{}, &TestValues2)
 	if validate {
 		t.FailNow()
 	}
@@ -183,6 +183,7 @@ func TestArray(t *testing.T) {
 
 func TestHttpRequestFormPost(t *testing.T) {
 	var validate bool
+	var result *util.ValidateResult
 
 	TestValues1 := &url.Values{
 		"Code":  {"hello world"},
@@ -193,7 +194,7 @@ func TestHttpRequestFormPost(t *testing.T) {
 	}
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		validate = util.ValidateRequest("test1", SchemaContent["test1"], &TestInput1{}, r)
+		validate, result = util.ValidateRequest("test1", SchemaContent["test1"], &TestInput1{}, r)
 	}))
 	defer ts.Close()
 
@@ -210,6 +211,7 @@ func TestHttpRequestFormPost(t *testing.T) {
 	}
 
 	if !validate {
+		fmt.Println(result)
 		t.FailNow()
 	}
 }

@@ -3,12 +3,27 @@ package util
 import (
 	"errors"
 	"fmt"
+	"github.com/xeipuuv/gojsonschema"
 	"github.com/xsnews/microservice-core/gosanitize/rule"
 	"github.com/xsnews/microservice-core/gosanitize/validate"
 	"net/http"
 	"reflect"
 	"strconv"
 )
+
+type ValidateResult struct {
+	GoError      error
+	SchemaErrors *gojsonschema.Result
+	RuleErrors   []error
+}
+
+func (v *ValidateResult) hasError() bool {
+	if v.GoError != nil || v.SchemaErrors != nil || len(v.RuleErrors) > 0 {
+		return true
+	}
+
+	return false
+}
 
 /* Load params from map */
 func LoadFromMap(params interface{}, values map[string]interface{}) error {
@@ -164,53 +179,61 @@ func Set(field *reflect.Value, v interface{}) error {
 }
 
 /* Helper function to validate a struct (params) with values (values) against a json schema (filename) */
-func Validate(id string, schema []byte, params interface{}, values *map[string]interface{}) bool {
+func Validate(id string, schema []byte, params interface{}, values *map[string]interface{}) (bool, *ValidateResult) {
+	rs := &ValidateResult{}
+
 	/* Inject input values from map into params */
-	err := LoadFromMap(params, *values)
-	if err != nil {
-		return false
+	rs.GoError = LoadFromMap(params, *values)
+	if rs.GoError != nil {
+		return false, rs
 	}
 
 	/* Create param struct and get validator */
 	v := validate.NewValidator(id, schema, params)
 
 	/* Validate input values with the json schema */
-	validateOk, _ := v.Validate()
+	validateOk, schemaErr := v.Validate()
 	if !validateOk {
-		return false
+		rs.SchemaErrors = schemaErr
+		return false, rs
 	}
 
 	r := rule.NewValidator(id, params)
-	ruleOk, _ := r.Validate()
+	ruleOk, ruleErr := r.Validate()
 	if !ruleOk {
-		return false
+		rs.RuleErrors = ruleErr
+		return false, rs
 	}
 
-	return true
+	return true, rs
 }
 
 /* Helper function to validate a struct (params) with values (values) against a json schema (filename) */
-func ValidateRequest(id string, schema []byte, params interface{}, r *http.Request) bool {
+func ValidateRequest(id string, schema []byte, params interface{}, r *http.Request) (bool, *ValidateResult) {
+	rs := &ValidateResult{}
+
 	/* Inject input values from map into params */
-	err := LoadFromRequest(params, r)
-	if err != nil {
-		return false
+	rs.GoError = LoadFromRequest(params, r)
+	if rs.GoError != nil {
+		return false, rs
 	}
 
 	/* Create param struct and get validator */
 	v := validate.NewValidator(id, schema, params)
 
 	/* Validate input values with the json schema */
-	validateOk, _ := v.Validate()
+	validateOk, schemaErr := v.Validate()
 	if !validateOk {
-		return false
+		rs.SchemaErrors = schemaErr
+		return false, rs
 	}
 
 	rv := rule.NewValidator(id, params)
-	ruleOk, _ := rv.Validate()
+	ruleOk, ruleErr := rv.Validate()
 	if !ruleOk {
-		return false
+		rs.RuleErrors = ruleErr
+		return false, rs
 	}
 
-	return true
+	return true, rs
 }
