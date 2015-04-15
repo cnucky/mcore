@@ -1,6 +1,7 @@
 package util
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/xeipuuv/gojsonschema"
@@ -212,10 +213,17 @@ func Validate(id string, schema []byte, params interface{}, values *map[string]i
 func ValidateRequest(id string, schema []byte, params interface{}, r *http.Request) (bool, *ValidateResult) {
 	rs := &ValidateResult{}
 
-	/* Inject input values from map into params */
-	rs.GoError = LoadFromRequest(params, r)
-	if rs.GoError != nil {
-		return false, rs
+	/* Needs refactoring */
+	if r.Header["Content-Type"][0] == "application/json" {
+		r.ParseForm()
+
+		j := json.NewDecoder(r.Body)
+		j.Decode(params)
+	} else {
+		rs.GoError = LoadFromRequest(params, r)
+		if rs.GoError != nil {
+			return false, rs
+		}
 	}
 
 	/* Create param struct and get validator */

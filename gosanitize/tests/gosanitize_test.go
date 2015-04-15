@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/xsnews/microservice-core/gosanitize/rule"
@@ -181,7 +183,7 @@ func TestArray(t *testing.T) {
 	}
 }
 
-func TestHttpRequestFormPost(t *testing.T) {
+func TestHttpRequestForm(t *testing.T) {
 	var validate bool
 	var result *util.ValidateResult
 
@@ -211,7 +213,50 @@ func TestHttpRequestFormPost(t *testing.T) {
 	}
 
 	if !validate {
-		fmt.Println(result)
+		fmt.Println(result.SchemaErrors)
+		t.FailNow()
+	}
+}
+
+func TestHttpRequestJson(t *testing.T) {
+	var validate bool
+	var result *util.ValidateResult
+
+	TestValues1 := &TestInput1{
+		Code:  "hello world",
+		Int:   10,
+		Float: 1.5,
+		Bool:  true,
+		Email: "test@gmail.com",
+	}
+
+	var b bytes.Buffer
+	j := json.NewEncoder(&b)
+	j.Encode(TestValues1)
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		validate, result = util.ValidateRequest("test1", SchemaContent["test1"], &TestInput1{}, r)
+	}))
+	defer ts.Close()
+
+	req, err := http.NewRequest("POST", ts.URL, &b)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		t.FailNow()
+	}
+
+	_, err = ioutil.ReadAll(res.Body)
+	if err != nil {
+		fmt.Println(err)
+		t.FailNow()
+	}
+
+	if !validate {
+		fmt.Println(result.SchemaErrors)
 		t.FailNow()
 	}
 }
