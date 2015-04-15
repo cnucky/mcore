@@ -2,9 +2,13 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"github.com/xsnews/microservice-core/gosanitize/rule"
 	"github.com/xsnews/microservice-core/gosanitize/util"
 	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"testing"
 )
 
@@ -173,6 +177,39 @@ func TestArray(t *testing.T) {
 
 	validate := util.Validate("test1", SchemaContent["test2"], &TestInput2{}, &TestValues2)
 	if validate {
+		t.FailNow()
+	}
+}
+
+func TestHttpRequestFormPost(t *testing.T) {
+	var validate bool
+
+	TestValues1 := &url.Values{
+		"Code":  {"hello world"},
+		"Int":   {"10"},
+		"Float": {"1.5"},
+		"Bool":  {"true"},
+		"Email": {"test@gmail.com"},
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		validate = util.ValidateRequest("test1", SchemaContent["test1"], &TestInput1{}, r)
+	}))
+	defer ts.Close()
+
+	res, err := http.PostForm(ts.URL, *TestValues1)
+	if err != nil {
+		fmt.Println(err)
+		t.FailNow()
+	}
+
+	_, err = ioutil.ReadAll(res.Body)
+	if err != nil {
+		fmt.Println(err)
+		t.FailNow()
+	}
+
+	if !validate {
 		t.FailNow()
 	}
 }

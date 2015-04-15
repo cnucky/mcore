@@ -188,3 +188,29 @@ func Validate(id string, schema []byte, params interface{}, values *map[string]i
 
 	return true
 }
+
+/* Helper function to validate a struct (params) with values (values) against a json schema (filename) */
+func ValidateRequest(id string, schema []byte, params interface{}, r *http.Request) bool {
+	/* Inject input values from map into params */
+	err := LoadFromRequest(params, r)
+	if err != nil {
+		return false
+	}
+
+	/* Create param struct and get validator */
+	v := validate.NewValidator(id, schema, params)
+
+	/* Validate input values with the json schema */
+	validateOk, _ := v.Validate()
+	if !validateOk {
+		return false
+	}
+
+	rv := rule.NewValidator(id, params)
+	ruleOk, _ := rv.Validate()
+	if !ruleOk {
+		return false
+	}
+
+	return true
+}
