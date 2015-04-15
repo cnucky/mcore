@@ -8,8 +8,7 @@ import (
 	"testing"
 )
 
-var SchemaId string
-var SchemaContent []byte
+var SchemaContent map[string][]byte
 
 /* Struct of all input keys */
 type TestInput1 struct {
@@ -39,8 +38,9 @@ func init() {
 	rule.AddRule("RuleField", RuleField)
 	rule.AddRule("RuleGeneric", RuleGeneric)
 
-	SchemaId = "test1"
-	SchemaContent = LoadSchema("./schemas/test1.json")
+	SchemaContent = make(map[string][]byte)
+	SchemaContent["test1"] = LoadSchema("./schemas/test1.json")
+	SchemaContent["test2"] = LoadSchema("./schemas/test1.json")
 }
 
 func LoadSchema(filename string) []byte {
@@ -64,7 +64,7 @@ func BenchmarkValidate(b *testing.B) {
 	}
 
 	for i := 0; i < b.N; i++ {
-		validate = util.Validate(SchemaId, SchemaContent, &TestInput1{}, &TestValues1)
+		validate = util.Validate("test1", SchemaContent["test1"], &TestInput1{}, &TestValues1)
 		if !validate {
 			b.FailNow()
 		}
@@ -80,7 +80,7 @@ func TestInputIsValidOK(t *testing.T) {
 		"Email": "test@gmail.com",
 	}
 
-	validate := util.Validate(SchemaId, SchemaContent, &TestInput1{}, &TestValues1)
+	validate := util.Validate("test1", SchemaContent["test1"], &TestInput1{}, &TestValues1)
 	if !validate {
 		t.FailNow()
 	}
@@ -97,7 +97,7 @@ func TestDependencyOK(t *testing.T) {
 		"Email":       "test@gmail.com",
 	}
 
-	validate := util.Validate(SchemaId, SchemaContent, &TestInput1{}, &TestValues1)
+	validate := util.Validate("test1", SchemaContent["test1"], &TestInput1{}, &TestValues1)
 	if !validate {
 		t.FailNow()
 	}
@@ -113,7 +113,7 @@ func TestDependencyFail(t *testing.T) {
 		"Email":   "test@gmail.com",
 	}
 
-	validate := util.Validate(SchemaId, SchemaContent, &TestInput1{}, &TestValues1)
+	validate := util.Validate("test1", SchemaContent["test1"], &TestInput1{}, &TestValues1)
 	if validate {
 		t.FailNow()
 	}
@@ -126,7 +126,7 @@ func TestMissingArgFail(t *testing.T) {
 		"Email": "test@gmail.com",
 	}
 
-	validate := util.Validate(SchemaId, SchemaContent, &TestInput1{}, &TestValues1)
+	validate := util.Validate("test1", SchemaContent["test1"], &TestInput1{}, &TestValues1)
 	if validate {
 		t.FailNow()
 	}
@@ -141,7 +141,7 @@ func TestRegexMatchFail(t *testing.T) {
 		"Email": "t est@gmail.com",
 	}
 
-	validate := util.Validate(SchemaId, SchemaContent, &TestInput1{}, &TestValues1)
+	validate := util.Validate("test1", SchemaContent["test1"], &TestInput1{}, &TestValues1)
 	if validate {
 		t.FailNow()
 	}
@@ -156,7 +156,7 @@ func TestFieldRuleFail(t *testing.T) {
 		"Email": "test@no.such.domain",
 	}
 
-	validate := util.Validate(SchemaId, SchemaContent, &TestInput1{}, &TestValues1)
+	validate := util.Validate("test1", SchemaContent["test1"], &TestInput1{}, &TestValues1)
 	if validate {
 		t.FailNow()
 	}
@@ -171,7 +171,7 @@ func TestArray(t *testing.T) {
 		"Array": []string{"10", "20"},
 	}
 
-	validate := util.Validate(SchemaId, SchemaContent, &TestInput2{}, &TestValues2)
+	validate := util.Validate("test1", SchemaContent["test2"], &TestInput2{}, &TestValues2)
 	if validate {
 		t.FailNow()
 	}
