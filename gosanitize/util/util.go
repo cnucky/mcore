@@ -12,6 +12,110 @@ import (
 	"strconv"
 )
 
+type Values map[string]interface{}
+
+type Validator struct {
+	Id     string
+	Schema []byte
+
+	Data   interface{}
+	dataOk bool
+
+	inputValidator *validate.InputValidator
+	ruleValidator  *rule.RuleValidator
+}
+
+func NewValidator(id string, schema []byte, data interface{}) *Validator {
+	return &Validator{
+		Id:     id,
+		Schema: schema,
+		Data:   data,
+		dataOk: false,
+	}
+}
+
+func (v *Validator) Validate() (bool, *gojsonschema.Result) {
+	if !v.dataOk {
+		panic("No input data loaded")
+	}
+
+	inputValidator := validate.NewValidator(v.Id, v.Schema, v.Data)
+
+	/* Validate input values with the json schema */
+	ok, err := inputValidator.Validate()
+	if !ok {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (v *Validator) ValidateRules() (bool, []error) {
+	if !v.dataOk {
+		panic("No input data loaded")
+	}
+
+	ruleValidator := rule.NewValidator(v.Id, v.Data)
+
+	/* Validate input values with the json schema */
+	ok, err := ruleValidator.Validate()
+	if !ok {
+		return false, err
+	}
+
+	return true, nil
+}
+
+/* Load data from map */
+func (v *Validator) LoadValues(values Values) error {
+	s := reflect.Indirect(reflect.ValueOf(v.Data))
+	for num := 0; num < s.NumField(); num++ {
+		field := s.Field(num)
+		fieldType := s.Type().Field(num)
+		postValue := values[fieldType.Name]
+		if postValue == nil {
+			continue
+		}
+
+		err := Set(&field, postValue)
+		if err != nil {
+			return err
+		}
+	}
+
+	v.dataOk = true
+	return nil
+}
+
+/* Load params from post */
+func (v *Validator) LoadValuesFromRequest(r *http.Request) error {
+	if r.Header["Content-Type"][0] == "application/json" {
+		j := json.NewDecoder(r.Body)
+		j.Decode(v.Data)
+	} else {
+		/* Parse http form */
+		r.ParseForm()
+	}
+
+	s := reflect.Indirect(reflect.ValueOf(v.Data))
+	for num := 0; num < s.NumField(); num++ {
+		field := s.Field(num)
+		fieldType := s.Type().Field(num)
+		postValue := r.Form.Get(fieldType.Name)
+		if postValue == "" {
+			continue
+		}
+
+		err := Set(&field, postValue)
+		if err != nil {
+			return err
+		}
+	}
+
+	v.dataOk = true
+	return nil
+}
+
 type ValidateResult struct {
 	GoError      error
 	SchemaErrors *gojsonschema.Result

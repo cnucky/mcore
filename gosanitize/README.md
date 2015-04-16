@@ -13,3 +13,5 @@ Expose JSON schema to clients so the same schema can be used for client and serv
 Helper function pass http request object.
 Length of posted arrays must be consistent.
 Detect excess form data.
+Add examples.
+Log invalid requests/input?
