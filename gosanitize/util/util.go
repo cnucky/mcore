@@ -77,7 +77,7 @@ func (v *Validator) LoadValues(values Values) error {
 			continue
 		}
 
-		err := Set(&field, postValue)
+		err := set(&field, postValue)
 		if err != nil {
 			return err
 		}
@@ -106,7 +106,7 @@ func (v *Validator) LoadValuesFromRequest(r *http.Request) error {
 			continue
 		}
 
-		err := Set(&field, postValue)
+		err := set(&field, postValue)
 		if err != nil {
 			return err
 		}
@@ -141,7 +141,7 @@ func LoadFromMap(params interface{}, values map[string]interface{}) error {
 			continue
 		}
 
-		err := Set(&field, postValue)
+		err := set(&field, postValue)
 		if err != nil {
 			return err
 		}
@@ -164,7 +164,7 @@ func LoadFromRequest(params interface{}, r *http.Request) error {
 			continue
 		}
 
-		err := Set(&field, postValue)
+		err := set(&field, postValue)
 		if err != nil {
 			return err
 		}
@@ -173,7 +173,7 @@ func LoadFromRequest(params interface{}, r *http.Request) error {
 	return nil
 }
 
-func SetSlice(field *reflect.Value, v interface{}) error {
+func setSlice(field *reflect.Value, v interface{}) error {
 	/* Check if field is settable */
 	if !field.CanSet() {
 		return errors.New(fmt.Sprintf("Can't set field '%s'", field))
@@ -241,7 +241,7 @@ func SetSlice(field *reflect.Value, v interface{}) error {
 }
 
 /* Convert input value and set field */
-func Set(field *reflect.Value, v interface{}) error {
+func set(field *reflect.Value, v interface{}) error {
 	var value string
 
 	/* Check if field is settable */
@@ -251,7 +251,7 @@ func Set(field *reflect.Value, v interface{}) error {
 
 	/* Is it a slice? */
 	if reflect.ValueOf(v).Kind() == reflect.Slice {
-		return SetSlice(field, v)
+		return setSlice(field, v)
 	}
 
 	/* Cast value, reflect and set it */
