@@ -77,7 +77,7 @@ func (v *Validator) LoadValues(values Values) error {
 			continue
 		}
 
-		err := set(&field, postValue)
+		err := setField(&field, postValue)
 		if err != nil {
 			return err
 		}
@@ -106,7 +106,7 @@ func (v *Validator) LoadValuesFromRequest(r *http.Request) error {
 			continue
 		}
 
-		err := set(&field, postValue)
+		err := setField(&field, postValue)
 		if err != nil {
 			return err
 		}
@@ -141,7 +141,7 @@ func LoadFromMap(params interface{}, values map[string]interface{}) error {
 			continue
 		}
 
-		err := set(&field, postValue)
+		err := setField(&field, postValue)
 		if err != nil {
 			return err
 		}
@@ -164,7 +164,7 @@ func LoadFromRequest(params interface{}, r *http.Request) error {
 			continue
 		}
 
-		err := set(&field, postValue)
+		err := setField(&field, postValue)
 		if err != nil {
 			return err
 		}
@@ -241,7 +241,7 @@ func setSlice(field *reflect.Value, v interface{}) error {
 }
 
 /* Convert input value and set field */
-func set(field *reflect.Value, v interface{}) error {
+func setField(field *reflect.Value, v interface{}) error {
 	var value string
 
 	/* Check if field is settable */
