@@ -116,63 +116,6 @@ func (v *Validator) LoadValuesFromRequest(r *http.Request) error {
 	return nil
 }
 
-type ValidateResult struct {
-	GoError      error
-	SchemaErrors *gojsonschema.Result
-	RuleErrors   []error
-}
-
-func (v *ValidateResult) hasError() bool {
-	if v.GoError != nil || v.SchemaErrors != nil || len(v.RuleErrors) > 0 {
-		return true
-	}
-
-	return false
-}
-
-/* Load params from map */
-func LoadFromMap(params interface{}, values map[string]interface{}) error {
-	s := reflect.Indirect(reflect.ValueOf(params))
-	for num := 0; num < s.NumField(); num++ {
-		field := s.Field(num)
-		fieldType := s.Type().Field(num)
-		postValue := values[fieldType.Name]
-		if postValue == nil {
-			continue
-		}
-
-		err := setField(&field, postValue)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-/* Load params from post */
-func LoadFromRequest(params interface{}, r *http.Request) error {
-	/* Parse http form */
-	r.ParseForm()
-
-	s := reflect.Indirect(reflect.ValueOf(params))
-	for num := 0; num < s.NumField(); num++ {
-		field := s.Field(num)
-		fieldType := s.Type().Field(num)
-		postValue := r.Form.Get(fieldType.Name)
-		if postValue == "" {
-			continue
-		}
-
-		err := setField(&field, postValue)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func setSlice(field *reflect.Value, v interface{}) error {
 	/* Check if field is settable */
 	if !field.CanSet() {
