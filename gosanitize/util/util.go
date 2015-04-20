@@ -91,7 +91,13 @@ func (v *Validator) LoadValues(values Values) error {
 func (v *Validator) LoadValuesFromRequest(r *http.Request) error {
 	if r.Header["Content-Type"][0] == "application/json" {
 		j := json.NewDecoder(r.Body)
-		j.Decode(v.Data)
+		err := j.Decode(v.Data)
+		if err != nil {
+			return err
+		}
+
+		v.dataOk = true
+		return nil
 	} else {
 		/* Parse http form */
 		r.ParseForm()
@@ -141,6 +147,8 @@ func setSlice(field *reflect.Value, v interface{}) error {
 		newSliceType = reflect.TypeOf([]int{})
 	case reflect.TypeOf([]bool{}):
 		newSliceType = reflect.TypeOf([]bool{})
+	default:
+		panic(fmt.Sprintf("Invalid slice type %s", newSliceElem))
 	}
 
 	newSlice = reflect.MakeSlice(newSliceType, s.Len(), s.Cap())
