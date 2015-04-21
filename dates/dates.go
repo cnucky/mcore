@@ -19,7 +19,7 @@ func ParseDuration(str string, initial time.Time) (time.Time, error) {
 	s := str
 	
 	minus := '0'
-	if str[0] == '-' {
+	if len(s) > 0 && str[0] == '-' {
 		minus = '-'
 		s = s[1:]
 	}
