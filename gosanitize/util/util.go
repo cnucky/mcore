@@ -107,8 +107,13 @@ func (v *Validator) LoadValuesFromRequest(r *http.Request) error {
 	for num := 0; num < s.NumField(); num++ {
 		field := s.Field(num)
 		fieldType := s.Type().Field(num)
-		postValue := r.Form.Get(fieldType.Name)
-		if postValue == "" {
+
+		if len(r.Form[fieldType.Name]) == 0 {
+			continue
+		}
+
+		postValue := r.Form[fieldType.Name]
+		if postValue == nil {
 			continue
 		}
 
@@ -191,6 +196,21 @@ func setSlice(field *reflect.Value, v interface{}) error {
 	return nil
 }
 
+func isSlice(field *reflect.Value) bool {
+	switch field.Type() {
+	case reflect.TypeOf([]string{}):
+		return true
+	case reflect.TypeOf([]float64{}):
+		return true
+	case reflect.TypeOf([]int{}):
+		return true
+	case reflect.TypeOf([]bool{}):
+		return true
+	}
+
+	return false
+}
+
 /* Convert input value and set field */
 func setField(field *reflect.Value, v interface{}) error {
 	var value string
@@ -200,13 +220,18 @@ func setField(field *reflect.Value, v interface{}) error {
 		return errors.New(fmt.Sprintf("Can't set field '%s'", field))
 	}
 
-	/* Is it a slice? */
-	if reflect.ValueOf(v).Kind() == reflect.Slice {
+	/* Check if supplied field is a slice */
+	if isSlice(field) {
 		return setSlice(field, v)
 	}
 
-	/* Cast value, reflect and set it */
-	value = v.(string)
+	/* Check if supplied v is a slice */
+	if reflect.ValueOf(v).Kind() == reflect.Slice {
+		/* If the supplied value is a slice we take the 1st value (same way url.Values's get method works) */
+		value = v.([]string)[0]
+	} else {
+		value = v.(string)
+	}
 
 	switch field.Kind() {
 	case reflect.Float64:
