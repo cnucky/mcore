@@ -17,15 +17,25 @@ func ParseDuration(str string, initial time.Time) (time.Time, error) {
 
 	val := ""
 	s := str
+	
+	minus := '0'
+	if str[0] == '-' {
+		minus = '-'
+		s = s[1:]
+	}
+
 	for len(s) > 0 {
 		c := s[0]
 
-		// [0-9\-]+
-		if (c >= '0' && c <= '9') || c == '-' {
+		// [0-9]+
+		if c >= '0' && c <= '9' {
 			val += string(c)
 		} else if c == 'y' || c == 'm' || c == 'd' || c == 'M' || c == 's' || c == 'h' {
 			if val == "" {
 				return now, errors.New("Duration: No value before unit, input=" + str)
+			}
+			if minus != '0' {
+				val = string(minus) + val
 			}
 			i, e := strconv.ParseInt(val, 10, 64)
 			if e != nil {
@@ -54,7 +64,6 @@ func ParseDuration(str string, initial time.Time) (time.Time, error) {
 					now = now.Add(d)
 
 				} else if (c == 'm' && s[2] == 's') || c == 's' || c == 'm' || c == 'h' {
-					fmt.Println("C: " + val + string(c))
 					d, e := time.ParseDuration(val + string(c))
 					if e != nil {
 						return now, e
@@ -64,6 +73,7 @@ func ParseDuration(str string, initial time.Time) (time.Time, error) {
 					return now, fmt.Errorf("Invalid unit=%c for input=%s", c, str)
 				}
 			}
+			val = ""
 
 		} else {
 			return now, errors.New("Duration: Invalid char=" + string(c))
