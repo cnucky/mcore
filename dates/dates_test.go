@@ -38,6 +38,7 @@ func TestParseDuration(t *testing.T) {
 		cmp{"-1y5d6h", "2003-12-26 18:00:00 +0000 UTC", false},
 		cmp{"88Z", "", true},
 		cmp{"88", "", true},
+		cmp{"", "", true},
 	}
 
 	for _, task := range tests {
