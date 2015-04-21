@@ -32,6 +32,7 @@ func TestParseDuration(t *testing.T) {
 	base := time.Date(2005, 1, 1, 0, 0, 0, 0, time.UTC)
 	tests := []cmp{
 		cmp{"1y", "2006-01-01 00:00:00 +0000 UTC", false},
+		cmp{"1y1y", "2007-01-01 00:00:00 +0000 UTC", false},
 		cmp{"-1y", "2004-01-01 00:00:00 +0000 UTC", false},
 		cmp{"1y5d6h", "2006-01-06 06:00:00 +0000 UTC", false},
 		cmp{"-1y5d6h", "2003-12-26 18:00:00 +0000 UTC", false},
