@@ -11,7 +11,7 @@ import (
 // Additional supported units ['d', 'm', 'y']
 func ParseDuration(str string, initial time.Time) (time.Time, error) {
 	now := initial
-	if time.Now().Unix() < time.Date(2005, time.January, 1, 0, 0, 0, 0, now.Location()).Unix() {
+	if initial.Unix() < time.Date(2005, time.January, 1, 0, 0, 0, 0, now.Location()).Unix() {
 		panic("DevErr: Please supply a valid now=" + now.String())
 	}
 
