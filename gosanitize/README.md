@@ -10,3 +10,8 @@ and optionally applying secondary rules to either the whole dataset or to a sing
 todo
 ====
 Expose JSON schema to clients so the same schema can be used for client and server side validation.
+Helper function pass http request object.
+Length of posted arrays must be consistent.
+Detect excess form data.
+Add examples.
+Log invalid requests/input?

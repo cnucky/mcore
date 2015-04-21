@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Validate basic values",
+  "type": "object",
+    "properties": {
+      "Array": {
+        "type": "array",
+        "items": {
+          "oneOf": [
+            { "type": "integer" }
+          ]
+        }
+      }
+    },
+
+    "required": ["Array"]
+}
