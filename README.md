@@ -13,5 +13,8 @@ Simple string interval parser. Converting '1w', time.Now() to next week's time.T
 * log
 Abstract logging policy (stdout/stderr/prefix/debugmsg)
 
-* inspect
+* valid
 Validate user input by validating the in-memory struct's annotations.
+
+Microservice inspiration:
+https://talks.bitexpert.de/phpbnl15-microservices/#/
