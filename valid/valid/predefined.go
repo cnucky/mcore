@@ -18,6 +18,30 @@ func init() {
 }
 
 func FnCount(ctx Context, args FnArgs) bool {
+	k := reflect.TypeOf(ctx.Value).Kind()
+	if k != reflect.Slice {
+		panic(fmt.Sprintf("expected slice, got %s", k))
+	}
+	s := reflect.ValueOf(ctx.Value)
+
+	min, err := FnGetInt(args["min"])
+	if err != nil {
+		panic(err)
+	}
+
+	max, err := FnGetInt(args["max"])
+	if err != nil {
+		panic(err)
+	}
+
+	if s.Len() < int(min) {
+		return false
+	}
+
+	if s.Len() > int(max) {
+		return false
+	}
+
 	return true
 }
 
