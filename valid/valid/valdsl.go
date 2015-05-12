@@ -53,6 +53,12 @@ func (v *Valdsl) Next(tokens []*Token, ctx *Context) (int, bool, error) {
 				panic(fmt.Sprintf("invalid rule, expected , or ( found %s", tokens[j].Id))
 			}
 		case 1:
+			if tokens[c].Type != tokenSymbol {
+				/* Done parsing arguments */
+				done = true
+				break
+			}
+
 			/* Set argument vars and increase cursor */
 			argname := tokens[c].Id
 			_ = tokens[c+1].Id /* currently this is always = */
@@ -79,7 +85,6 @@ func (v *Valdsl) Next(tokens []*Token, ctx *Context) (int, bool, error) {
 
 				args[argname] = s
 
-				/* Increase cursor */
 				c = j + 1
 			} else {
 				/* Single symbol */
