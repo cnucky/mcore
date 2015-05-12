@@ -15,11 +15,15 @@ func init() {
 }
 
 func FnOneOf(ctx Context, args FnArgs) bool {
-	fmt.Println(ctx.Value.(string))
+	cmp := ctx.Value.(string)
 	enum, _ := FnGetStrSlice(args["enum"])
-	fmt.Println(enum)
+	for _, cmp2 := range enum {
+		if cmp == cmp2 {
+			return true
+		}
+	}
 
-	return true
+	return false
 }
 
 func FnReqif(ctx Context, args FnArgs) bool {
