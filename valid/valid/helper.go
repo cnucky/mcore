@@ -16,3 +16,7 @@ func FnGetInt(i interface{}) (int64, error) {
 func FnGetStr(i interface{}) (string, error) {
 	return i.(string), nil
 }
+
+func FnGetStrSlice(i interface{}) ([]string, error) {
+	return i.([]string), nil
+}

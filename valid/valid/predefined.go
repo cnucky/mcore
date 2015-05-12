@@ -7,11 +7,43 @@ import (
 
 func init() {
 	Fns = map[string]FnValidate{
-		"len":   FnLen,
-		"type":  FnType,
-		"reqif": FnReqif,
-		"oneof": FnOneOf,
+		"len":    FnLen,
+		"type":   FnType,
+		"reqif":  FnReqif,
+		"onlyif": FnOnlyIf,
+		"oneof":  FnOneOf,
+		"def":    FnDef,
+		"count":  FnCount,
 	}
+}
+
+func FnCount(ctx Context, args FnArgs) bool {
+	return true
+}
+
+func FnDef(ctx Context, args FnArgs) bool {
+	return true
+}
+
+func FnOnlyIf(ctx Context, args FnArgs) bool {
+	s := reflect.ValueOf(ctx.Ctx).Elem()
+	for k, cmp := range args {
+		fld := s.FieldByName(k)
+		if !fld.IsValid() {
+			panic("field missing")
+		}
+
+		cmp2 := fmt.Sprintf("%v", fld.Interface())
+
+		enum, _ := FnGetStrSlice(cmp)
+		for _, cmp := range enum {
+			if cmp == cmp2 {
+				return true
+			}
+		}
+	}
+
+	return false
 }
 
 func FnOneOf(ctx Context, args FnArgs) bool {
