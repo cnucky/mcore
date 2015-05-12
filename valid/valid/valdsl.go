@@ -25,9 +25,16 @@ func (v *Valdsl) Next(tokens []*Token, ctx *Context) (int, bool, error) {
 	var i int
 	for i = 0; i < len(tokens); i++ {
 		if tokens[i].Type == tokenArgOpen {
+			if state == 0 {
+				state = 1
+			}
 			continue
 		} else if tokens[i].Type == tokenSep {
-			continue
+			if state == 1 {
+				continue
+			} else {
+				break
+			}
 		} else if tokens[i].Type == tokenArgClose {
 			/* we're done parsing */
 			break
@@ -36,7 +43,6 @@ func (v *Valdsl) Next(tokens []*Token, ctx *Context) (int, bool, error) {
 		/* set validation function */
 		if tokens[i].Type == tokenSymbol && state == 0 {
 			fn = tokens[i].Id
-			state = 1
 			continue
 		}
 
@@ -49,7 +55,8 @@ func (v *Valdsl) Next(tokens []*Token, ctx *Context) (int, bool, error) {
 		id, _, val := tokens[i].Id, tokens[i+1].Id, tokens[i+2].Id
 		i = i + 2
 		args[id] = val
-		//fmt.Println("Rule:", id, op, val)
+
+		//fmt.Println("Rule:", fn, id, val)
 	}
 
 	if Fns[fn] == nil {
