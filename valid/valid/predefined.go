@@ -14,6 +14,37 @@ func init() {
 		"oneof":  FnOneOf,
 		"def":    FnDef,
 		"count":  FnCount,
+		"hash":   FnHash,
+	}
+}
+
+func FnHash(ctx Context, args FnArgs) bool {
+	cmp := ctx.Value.(string)
+
+	t, err := FnGetStr(args["type"])
+	if err != nil {
+		panic(err)
+	}
+
+	switch t {
+	case "sha256":
+		if len(cmp) != 64 {
+			return false
+		}
+
+		for i := 0; i < len(cmp); i++ {
+			if cmp[i] >= 'A' && cmp[i] <= 'F' {
+				continue
+			} else if cmp[i] >= '0' && cmp[i] <= '9' {
+				continue
+			}
+
+			return false
+		}
+
+		return true
+	default:
+		panic(fmt.Sprintf("invalid hash %s", t))
 	}
 }
 
