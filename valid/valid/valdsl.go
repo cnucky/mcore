@@ -1,73 +1,109 @@
 package valid
 
 import (
-	"errors"
 	"fmt"
 )
+
+//"errors"
 
 /* call context */
 type Valdsl struct {
 	Ctx interface{}
 }
 
-type FnArgs map[string]string              /* validation arguments */
+type FnArgs map[string]interface{}         /* validation arguments */
 type FnValue interface{}                   /* validation value */
 type FnValidate func(Context, FnArgs) bool /* validation function definition */
 var Fns map[string]FnValidate              /* validation id -> func map */
 
-/* parses the next available token */
+/* Parse next rule */
 func (v *Valdsl) Next(tokens []*Token, ctx *Context) (int, bool, error) {
 	var state int                  /* current parsing state, 0 = parse symbol, 1 = parse arguments */
 	var fn string                  /* function id */
 	var args FnArgs = make(FnArgs) /* collected arguments */
 
 	/* iterate through tokens */
-	var i int
-	for i = 0; i < len(tokens); i++ {
-		if tokens[i].Type == tokenArgOpen {
-			if state == 0 {
-				state = 1
-			}
-			continue
-		} else if tokens[i].Type == tokenSep {
-			if state == 1 {
-				continue
-			} else {
+	var c int
+	var done bool
+	for c = 0; c < len(tokens); c++ {
+		switch state {
+		case 0: /* Set function name */
+			if tokens[c].Type != tokenSymbol {
+				panic(fmt.Sprintf("expected symbol, found %s", tokens[c].Id))
 				break
 			}
-		} else if tokens[i].Type == tokenArgClose {
-			/* we're done parsing */
+
+			fn = tokens[c].Id
+
+			/* Peek at next token */
+			j := c + 1
+			if j >= len(tokens) {
+				/* Exit if we're at the end already */
+				done = true
+				break
+			}
+
+			if tokens[j].Type == tokenSep {
+				done = true
+				break
+			} else if tokens[j].Type == tokenArgOpen {
+				state = 1
+				c++
+			} else {
+				panic(fmt.Sprintf("invalid rule, expected , or ( found %s", tokens[j].Id))
+			}
+		case 1:
+			/* Set argument vars and increase cursor */
+			argname := tokens[c].Id
+			_ = tokens[c+1].Id /* currently this is always = */
+			argtype := tokens[c+2].Type
+			argval := tokens[c+2].Id
+			c = c + 3
+
+			/* What kind of arguments are we passing */
+			if argtype == tokenArgSliceOpen {
+				/* Parse a slice of symbols */
+				var j int
+				var s []string = make([]string, 0, 4)
+				for j = c; j < len(tokens); j++ {
+					if tokens[j].Type == tokenArgSliceClose {
+						break
+					} else if tokens[j].Type == tokenSep {
+						continue
+					} else if tokens[j].Type != tokenSymbol {
+						panic(fmt.Sprintf("expected symbol found %s", tokens[j].Id))
+					}
+
+					s = append(s, tokens[j].Id)
+				}
+
+				args[argname] = s
+
+				/* Increase cursor */
+				c = j + 1
+			} else {
+				/* Single symbol */
+				args[argname] = argval
+			}
+		}
+
+		/* Are we done parsing? */
+		if done {
 			break
 		}
-
-		/* set validation function */
-		if tokens[i].Type == tokenSymbol && state == 0 {
-			fn = tokens[i].Id
-			continue
-		}
-
-		/* todo: replace this with a grammar checker */
-		if i+2 >= len(tokens) {
-			return -1, false, errors.New("Invalid rule")
-		}
-
-		/* Parse argument */
-		id, _, val := tokens[i].Id, tokens[i+1].Id, tokens[i+2].Id
-		i = i + 2
-		args[id] = val
-
-		//fmt.Println("Rule:", fn, id, val)
 	}
+
+	fmt.Println(fn, args)
 
 	if Fns[fn] == nil {
 		fmt.Println(fn, "not implemented")
-		return i, false, nil
+		return c, false, nil
 	}
 
 	ret := Fns[fn](*ctx, args)
 	fmt.Println(fn, ret)
 
-	return i, ret, nil
+	return c, ret, nil
 }
 
 func (v *Valdsl) Parse(c interface{}, code string, value FnValue) error {
