@@ -14,6 +14,8 @@ const (
 	tokenEquals
 	tokenArgOpen
 	tokenArgClose
+	tokenArgSliceOpen
+	tokenArgSliceClose
 )
 
 type Token struct {
@@ -96,6 +98,10 @@ func (l *Lexer) Tokenize(code string) []*Token {
 				tok.Type = tokenArgOpen
 			case ')':
 				tok.Type = tokenArgClose
+			case '[':
+				tok.Type = tokenArgSliceOpen
+			case ']':
+				tok.Type = tokenArgSliceClose
 			default:
 				tok.Type = tokenUnknown
 			}
