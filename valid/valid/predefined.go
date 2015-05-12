@@ -2,6 +2,7 @@ package valid
 
 import (
 	"fmt"
+	"reflect"
 )
 
 func init() {
@@ -13,10 +14,16 @@ func init() {
 }
 
 func FnReqif(ctx Context, args FnArgs) bool {
-	//fld := reflect.ValueOf(ctx.Ctx)
-	//fmt.Println(fld.FieldByName("Test"))
-	for k, v := range args {
-		fmt.Println(k, v)
+	s := reflect.ValueOf(ctx.Ctx).Elem()
+	for k, cmp := range args {
+		fld := s.FieldByName(k)
+		if !fld.IsValid() {
+			panic("field missing")
+		}
+
+		cmp2 := fmt.Sprintf("%v", fld.Interface())
+		fmt.Println(cmp2, cmp)
+		break
 	}
 
 	return true
@@ -37,7 +44,7 @@ func FnLen(ctx Context, args FnArgs) bool {
 		panic(err)
 	}
 
-	max, err := FnGetInt(args["min"])
+	max, err := FnGetInt(args["max"])
 	if err != nil {
 		panic(err)
 	}
