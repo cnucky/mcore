@@ -19,7 +19,10 @@ func init() {
 }
 
 func FnHash(ctx Context, args FnArgs) bool {
-	cmp := ctx.Value.(string)
+	cmp, ok := ctx.Value.(string)
+	if !ok {
+		panic("expected string")
+	}
 
 	t, err := FnGetStr(args["type"])
 	if err != nil {
@@ -77,7 +80,39 @@ func FnCount(ctx Context, args FnArgs) bool {
 }
 
 func FnDef(ctx Context, args FnArgs) bool {
-	return true
+	t, _ := FnGetStr(args["type"])
+	switch t {
+	case "ascii":
+		cmp, ok := ctx.Value.(string)
+		if !ok {
+			for i := 0; i < len(cmp); i++ {
+				if cmp[i] >= 'A' && cmp[i] <= 'Z' {
+					continue
+				}
+
+				return false
+			}
+		}
+
+		return true
+	case "uint":
+		cmp, ok := ctx.Value.(int64)
+		if !ok {
+			panic("expected int64")
+		}
+
+		if cmp >= 0 {
+			return true
+		}
+
+		return false
+	case "date":
+		return true
+	default:
+		panic(fmt.Sprintf("type %s not implemented", t))
+	}
+
+	return false
 }
 
 func FnOnlyIf(ctx Context, args FnArgs) bool {
@@ -102,7 +137,11 @@ func FnOnlyIf(ctx Context, args FnArgs) bool {
 }
 
 func FnOneOf(ctx Context, args FnArgs) bool {
-	cmp := ctx.Value.(string)
+	cmp, ok := ctx.Value.(string)
+	if !ok {
+		panic("expected string")
+	}
+
 	enum, _ := FnGetStrSlice(args["enum"])
 	for _, cmp2 := range enum {
 		if cmp == cmp2 {
@@ -139,6 +178,11 @@ func FnType(ctx Context, args FnArgs) bool {
 }
 
 func FnLen(ctx Context, args FnArgs) bool {
+	cmp, ok := ctx.Value.(string)
+	if !ok {
+		panic("expected string")
+	}
+
 	min, err := FnGetInt(args["min"])
 	if err != nil {
 		panic(err)
@@ -149,11 +193,11 @@ func FnLen(ctx Context, args FnArgs) bool {
 		panic(err)
 	}
 
-	if len(ctx.Value.(string)) < int(min) {
+	if len(cmp) < int(min) {
 		return false
 	}
 
-	if len(ctx.Value.(string)) > int(max) {
+	if len(cmp) > int(max) {
 		return false
 	}
 
