@@ -35,7 +35,7 @@ func (l *Lexer) scanType(c rune) int {
 }
 
 func (l *Lexer) isSymbol(c rune) bool {
-	if (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '@' {
+	if (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '@' {
 		return true
 	}
 
