@@ -10,7 +10,16 @@ func init() {
 		"len":   FnLen,
 		"type":  FnType,
 		"reqif": FnReqif,
+		"oneof": FnOneOf,
 	}
+}
+
+func FnOneOf(ctx Context, args FnArgs) bool {
+	fmt.Println(ctx.Value.(string))
+	enum, _ := FnGetStrSlice(args["enum"])
+	fmt.Println(enum)
+
+	return true
 }
 
 func FnReqif(ctx Context, args FnArgs) bool {
