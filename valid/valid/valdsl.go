@@ -8,7 +8,8 @@ import (
 
 /* call context */
 type Valdsl struct {
-	Ctx interface{}
+	Ctx   interface{}
+	Debug bool
 }
 
 type FnArgs map[string]interface{}         /* validation arguments */
@@ -98,15 +99,15 @@ func (v *Valdsl) Next(tokens []*Token, ctx *Context) (int, bool, error) {
 		}
 	}
 
-	fmt.Println(fn, args)
-
 	if Fns[fn] == nil {
 		fmt.Println(fn, "not implemented")
 		return c, false, nil
 	}
 
 	ret := Fns[fn](*ctx, args)
-	fmt.Println(fn, ret)
+	if v.Debug {
+		fmt.Println(fn, args, ctx, ret)
+	}
 
 	return c, ret, nil
 }
@@ -117,13 +118,11 @@ func (v *Valdsl) Parse(c interface{}, code string, value FnValue) error {
 	tokens := l.Tokenize(code)
 	for i := 0; i < len(tokens); i++ {
 		if tokens[i].Type == tokenSep {
-			//fmt.Println("NEXT!")
 			continue
 		}
 
 		skip, _, err := v.Next(tokens[i:], ctx)
 		if err != nil {
-			//fmt.Println(err)
 			return err
 		}
 
