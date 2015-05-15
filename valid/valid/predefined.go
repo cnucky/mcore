@@ -15,7 +15,12 @@ func init() {
 		"def":    FnDef,
 		"count":  FnCount,
 		"hash":   FnHash,
+		"eq":     FnEq,
 	}
+}
+
+func FnEq(ctx Context, args FnArgs) bool {
+	return true
 }
 
 func FnHash(ctx Context, args FnArgs) bool {
@@ -107,6 +112,8 @@ func FnDef(ctx Context, args FnArgs) bool {
 
 		return false
 	case "date":
+		return true
+	case "email":
 		return true
 	default:
 		panic(fmt.Sprintf("type %s not implemented", t))
