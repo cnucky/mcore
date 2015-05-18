@@ -29,8 +29,7 @@ func Validate(t interface{}) bool {
 	s := reflect.Indirect(reflect.ValueOf(t))
 	for num := 0; num < s.NumField(); num++ {
 		name := s.Type().Field(num).Name
-		if name == "_" {
-			/* Skip unexported fields */
+		if name == "_" || !s.Field(num).CanSet() {
 			continue
 		}
 
@@ -58,12 +57,18 @@ func Validate(t interface{}) bool {
 			s := reflect.ValueOf(s.Field(num).Interface())
 			for i := 0; i < s.Len(); i++ {
 				ret := Validate(s.Index(i).Interface())
-				fmt.Println("ret [slice]:", ret)
+				fmt.Println("...", ret)
+				if !ret {
+					return false
+				}
 			}
 		} else if s.Type().Field(num).Type.Kind() == reflect.Struct {
 			/* If it's a struct, only validate the struct */
 			ret := Validate(s.Field(num).Interface())
-			fmt.Println("ret [struct]:", ret)
+			fmt.Println("...", ret)
+			if !ret {
+				return false
+			}
 		}
 	}
 
