@@ -6,7 +6,7 @@ Remove duplicate code from multiple projects into one.
 package config
 
 import (
-	"github.com/xsnews/microservice-core/config"
+	"github.com/xsnews/mcore/config"
 )
 
 type Config struct {
