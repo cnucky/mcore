@@ -5,6 +5,7 @@ import (
 	"os"
 )
 
+// Parse JSON from given path.
 func Load(filename string, prefs interface{}) error {
 	f, err := os.Open(filename)
 	if err != nil {
