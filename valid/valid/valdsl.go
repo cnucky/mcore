@@ -112,7 +112,9 @@ func (v *Valdsl) Next(tokens []*Token, ctx *Context) (int, bool, error) {
 	return c, ret, nil
 }
 
-func (v *Valdsl) Parse(c interface{}, code string, value FnValue) error {
+func (v *Valdsl) Parse(c interface{}, code string, value FnValue) (error, bool) {
+	ret := true
+
 	l := &Lexer{}
 	ctx := &Context{Ctx: c, Value: value}
 	tokens := l.Tokenize(code)
@@ -121,13 +123,17 @@ func (v *Valdsl) Parse(c interface{}, code string, value FnValue) error {
 			continue
 		}
 
-		skip, _, err := v.Next(tokens[i:], ctx)
+		skip, r, err := v.Next(tokens[i:], ctx)
 		if err != nil {
-			return err
+			return err, false
+		}
+
+		if !r {
+			ret = r
 		}
 
 		i += skip
 	}
 
-	return nil
+	return nil, ret
 }

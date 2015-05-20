@@ -2,6 +2,8 @@ package valid
 
 import (
 	"fmt"
+	"github.com/gorilla/schema"
+	"net/http"
 	"reflect"
 	"strconv"
 )
@@ -29,7 +31,7 @@ func Validate(t interface{}) bool {
 	s := reflect.Indirect(reflect.ValueOf(t))
 	for num := 0; num < s.NumField(); num++ {
 		name := s.Type().Field(num).Name
-		if name == "_" || !s.Field(num).CanSet() {
+		if name == "_" || !s.Field(num).CanInterface() {
 			continue
 		}
 
@@ -45,10 +47,14 @@ func Validate(t interface{}) bool {
 		/* Create parser for this rule and pass the context to it */
 		l := new(Valdsl)
 		l.Debug = true
-		err := l.Parse(t, rule, value)
+		err, valid := l.Parse(t, rule, value)
 		if err != nil {
 			/* Deverror in rule */
 			panic(err)
+		}
+
+		if !valid {
+			return false
 		}
 
 		/* Is this a slice? */
@@ -73,4 +79,11 @@ func Validate(t interface{}) bool {
 	}
 
 	return true
+}
+
+func ParseForm(input interface{}, r *http.Request) error {
+	r.ParseForm()
+	decoder := schema.NewDecoder()
+	err := decoder.Decode(input, r.PostForm)
+	return err
 }

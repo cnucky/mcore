@@ -100,6 +100,17 @@ func FnDef(ctx Context, args FnArgs) bool {
 		}
 
 		return true
+	case "udecimal":
+		cmp, ok := ctx.Value.(float64)
+		if !ok {
+			panic("expected float64")
+		}
+
+		if cmp >= 0 {
+			return true
+		}
+
+		return false
 	case "uint":
 		cmp, ok := ctx.Value.(int64)
 		if !ok {
@@ -135,7 +146,12 @@ func FnOnlyIf(ctx Context, args FnArgs) bool {
 		enum, _ := FnGetStrSlice(cmp)
 		for _, cmp := range enum {
 			if cmp == cmp2 {
-				return true
+				/* Todo: generic value reflect */
+				if ctx.Value.(int64) > 0 {
+					return true
+				} else {
+					return false
+				}
 			}
 		}
 	}
