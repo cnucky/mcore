@@ -1,7 +1,6 @@
 package valid
 
 import (
-	"fmt"
 	"github.com/gorilla/schema"
 	"net/http"
 	"reflect"
@@ -26,7 +25,9 @@ func FnGetStrSlice(i interface{}) ([]string, error) {
 }
 
 /* Reflect struct */
-func Validate(t interface{}) bool {
+func Validate(t interface{}) (bool, map[string][]string) {
+	var collectResults map[string][]string = make(map[string][]string)
+
 	/* Loop through each field in given struct */
 	s := reflect.Indirect(reflect.ValueOf(t))
 	for num := 0; num < s.NumField(); num++ {
@@ -47,14 +48,16 @@ func Validate(t interface{}) bool {
 		/* Create parser for this rule and pass the context to it */
 		l := new(Valdsl)
 		l.Debug = true
-		err, valid := l.Parse(t, rule, value)
+		err, results := l.Parse(t, rule, value)
 		if err != nil {
 			/* Deverror in rule */
 			panic(err)
 		}
 
-		if !valid {
-			return false
+		if len(results) > 0 {
+			for _, v := range results {
+				collectResults[name] = append(collectResults[name], v)
+			}
 		}
 
 		/* Is this a slice? */
@@ -62,23 +65,29 @@ func Validate(t interface{}) bool {
 			/* Loop through slice and validate each item */
 			s := reflect.ValueOf(s.Field(num).Interface())
 			for i := 0; i < s.Len(); i++ {
-				ret := Validate(s.Index(i).Interface())
-				fmt.Println("...", ret)
-				if !ret {
-					return false
+				_, results := Validate(s.Index(i).Interface())
+				if len(results) > 0 {
+					for _, v := range results {
+						collectResults[name] = append(collectResults[name], v...)
+					}
 				}
 			}
 		} else if s.Type().Field(num).Type.Kind() == reflect.Struct {
 			/* If it's a struct, only validate the struct */
-			ret := Validate(s.Field(num).Interface())
-			fmt.Println("...", ret)
-			if !ret {
-				return false
+			_, results := Validate(s.Field(num).Interface())
+			if len(results) > 0 {
+				for _, v := range results {
+					collectResults[name] = append(collectResults[name], v...)
+				}
 			}
 		}
 	}
 
-	return true
+	if len(collectResults) > 0 {
+		return false, collectResults
+	}
+
+	return true, collectResults
 }
 
 func ParseForm(input interface{}, r *http.Request) error {

@@ -4,6 +4,10 @@ import (
 	"fmt"
 )
 
+const (
+	MAX_RETURNS = 100
+)
+
 //"errors"
 
 /* call context */
@@ -18,10 +22,11 @@ type FnValidate func(Context, FnArgs) bool /* validation function definition */
 var Fns map[string]FnValidate              /* validation id -> func map */
 
 /* Parse next rule */
-func (v *Valdsl) Next(tokens []*Token, ctx *Context) (int, bool, error) {
+func (v *Valdsl) Next(tokens []*Token, ctx *Context) (int, []string) {
 	var state int                  /* current parsing state, 0 = parse symbol, 1 = parse arguments */
 	var fn string                  /* function id */
 	var args FnArgs = make(FnArgs) /* collected arguments */
+	var results []string = make([]string, 0, MAX_RETURNS)
 
 	/* iterate through tokens */
 	var c int
@@ -99,21 +104,27 @@ func (v *Valdsl) Next(tokens []*Token, ctx *Context) (int, bool, error) {
 		}
 	}
 
+	/* Function call was not implemented, should probably cause a panic */
 	if Fns[fn] == nil {
 		fmt.Println(fn, "not implemented")
-		return c, false, nil
+		return c, results
 	}
 
+	/* Run validation function */
 	ret := Fns[fn](*ctx, args)
+	if !ret {
+		results = append(results, fn)
+	}
+
 	if v.Debug {
 		fmt.Println(fn, args, ctx, ret)
 	}
 
-	return c, ret, nil
+	return c, results
 }
 
-func (v *Valdsl) Parse(c interface{}, code string, value FnValue) (error, bool) {
-	ret := true
+func (v *Valdsl) Parse(c interface{}, code string, value FnValue) (error, []string) {
+	results := make([]string, 0, MAX_RETURNS)
 
 	l := &Lexer{}
 	ctx := &Context{Ctx: c, Value: value}
@@ -123,17 +134,13 @@ func (v *Valdsl) Parse(c interface{}, code string, value FnValue) (error, bool) 
 			continue
 		}
 
-		skip, r, err := v.Next(tokens[i:], ctx)
-		if err != nil {
-			return err, false
-		}
-
-		if !r {
-			ret = r
+		skip, ret := v.Next(tokens[i:], ctx)
+		if len(ret) > 0 {
+			results = append(results, ret...)
 		}
 
 		i += skip
 	}
 
-	return nil, ret
+	return nil, results
 }
