@@ -21,12 +21,15 @@ type Input struct {
 	Hash  string `validate:"hash(type=sha256)"` // panic on invalid type
 	Role  string `validate:"oneof(enum=[admin,user])"`
 
-	Customer string `validate:"def(type=ascii)"`                                   // Only allow [a-zA-Z]+
+	Customer string `validate:"def(type=slug)"`                                    // Only allow [a-zA-Z]+
 	Supplier int64  `validate:"def(type=uint),onlyif(Customer=[OPTION1,OPTION2])"` // supplier must be > 0 if customer field
 
 	Lines []InputLine `validate:"count(min=2,max=4)"` // require at least 2 lines and most 4
-	Line  InputLine   `validate:"def(type=ascii)"`    // require at least 2 lines and most 4
+	Line  InputLine   `validate:"def(type=slug)"`     // require at least 2 lines and most 4
 	Date  string      `validate:"def(type=date)"`     // date ALWAYS needs a date in a format WITH a timezone!
+
+	Added  *int64 `validate:"def(type=uint)"`
+	Added2 *int64 `validate:"def(type=uint)"`
 }
 
 func TestParser(t *testing.T) {
@@ -37,6 +40,8 @@ func TestParser(t *testing.T) {
 	s.Hash = "AF93BCDEAFAF93BCDEAFAF93BCDEAFAF93BCDEAFAF93BCDEAFAF93BCDEAFFDAA"
 	s.Lines = []InputLine{InputLine{Price: 10}, InputLine{Price: 20}}
 	s.Line = InputLine{Price: 10}
+	var a int64 = -10
+	s.Added = &a
 
 	valid.Validate(s)
 }
