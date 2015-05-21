@@ -3,7 +3,11 @@ package valid
 import (
 	"fmt"
 	"reflect"
+	"regexp"
 )
+
+// Validation regexps for type=...
+var Regexps map[string]*regexp.Regexp
 
 func init() {
 	Fns = map[string]FnValidate{
@@ -16,6 +20,13 @@ func init() {
 		"count":  FnCount,
 		"hash":   FnHash,
 		"eq":     FnEq,
+	}
+	initRegex()
+}
+
+func initRegex() {
+	Regexps = map[string]*regexp.Regexp{
+		"email": regexp.MustCompilePOSIX(`/.+@.+\..+/i`),
 	}
 }
 
@@ -124,10 +135,13 @@ func FnDef(ctx Context, args FnArgs) bool {
 		return false
 	case "date":
 		return true
-	case "email":
-		return true
+
 	default:
-		panic(fmt.Sprintf("type %s not implemented", t))
+		regx, ok := Regexps[t]
+		if !ok {
+			panic(fmt.Sprintf("type %s not implemented", t))
+		}
+		return regx.Match([]byte(ctx.Value.(string)))
 	}
 
 	return false
