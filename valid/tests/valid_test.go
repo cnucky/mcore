@@ -24,6 +24,7 @@ type Input struct {
 	Customer string `validate:"def(type=slug)"`                                    // Only allow [a-zA-Z]+
 	Supplier int64  `validate:"def(type=uint),onlyif(Customer=[OPTION1,OPTION2])"` // supplier must be > 0 if customer field
 
+	Map map[string]string `validate:count(min=1,max=1)`     // require at least 1 map and most 1
 	Lines []InputLine `validate:"count(min=2,max=4)"` // require at least 2 lines and most 4
 	Line  InputLine   `validate:"def(type=slug)"`     // require at least 2 lines and most 4
 	Date  string      `validate:"def(type=date)"`     // date ALWAYS needs a date in a format WITH a timezone!
@@ -40,6 +41,7 @@ func TestParser(t *testing.T) {
 	s.Hash = "AF93BCDEAFAF93BCDEAFAF93BCDEAFAF93BCDEAFAF93BCDEAFAF93BCDEAFFDAA"
 	s.Lines = []InputLine{InputLine{Price: 10}, InputLine{Price: 20}}
 	s.Line = InputLine{Price: 10}
+	s.Map = map[string]string{"KEY": "VALUE"}
 	var a int64 = -10
 	s.Added = &a
 
