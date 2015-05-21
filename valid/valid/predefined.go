@@ -84,22 +84,24 @@ func FnCount(ctx Context, args FnArgs) bool {
 	}
 	s := reflect.ValueOf(ctx.Value)
 
-	min, err := FnGetInt(args["min"])
-	if err != nil {
-		panic(err)
+	if args["min"] != nil {
+		min, err := FnGetInt(args["min"])
+		if err != nil {
+			panic(err)
+		}
+		if s.Len() < int(min) {
+			return false
+		}
 	}
 
-	max, err := FnGetInt(args["max"])
-	if err != nil {
-		panic(err)
-	}
-
-	if s.Len() < int(min) {
-		return false
-	}
-
-	if s.Len() > int(max) {
-		return false
+	if args["max"] != nil {
+		max, err := FnGetInt(args["max"])
+		if err != nil {
+			panic(err)
+		}
+		if s.Len() > int(max) {
+			return false
+		}
 	}
 
 	return true
