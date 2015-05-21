@@ -29,7 +29,7 @@ func init() {
 
 func initRegex() {
 	Regexps = map[string]*regexp.Regexp{
-		"email": regexp.MustCompilePOSIX(`/.+@.+\..+/i`),
+		"email": regexp.MustCompile(`.+@.+\..+`),
 	}
 }
 
@@ -277,7 +277,7 @@ func FnCsv(ctx Context, args FnArgs) bool {
 			map[string]interface{}{"type": args["type"]},
 		)
 		if !ok {
-			allOk = ok
+			allOk = false
 		}
 	}
 	return allOk
