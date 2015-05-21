@@ -32,18 +32,33 @@ func Validate(t interface{}) (bool, map[string][]string) {
 	/* Loop through each field in given struct */
 	s := reflect.Indirect(reflect.ValueOf(t))
 	for num := 0; num < s.NumField(); num++ {
+		/* Get name of variable and check if it's exportable */
 		name := s.Type().Field(num).Name
 		if name == "_" || !s.Field(num).CanInterface() {
 			continue
 		}
 
-		/* Exported field, specific field rule */
-		value := s.Field(num).Interface()
+		/* Skip pointers with nil values, these are optional fields */
+		if s.Field(num).Kind() == reflect.Ptr {
+			if s.Field(num).IsNil() {
+				continue
+			}
+		}
 
-		/* Get validation rule */
+		/* Get the validation tag */
 		rule := s.Type().Field(num).Tag.Get("validate")
 		if len(rule) == 0 {
 			continue
+		}
+
+		/* This field is OK for validation, get the value from interface */
+		var value interface{}
+		if s.Field(num).Kind() == reflect.Ptr {
+			/* Derefence pointer value */
+			value = s.Field(num).Elem().Interface()
+		} else {
+			/* Just get the interface value */
+			value = s.Field(num).Interface()
 		}
 
 		/* Create parser for this rule and pass the context to it */
