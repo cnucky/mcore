@@ -206,22 +206,24 @@ func FnLen(ctx Context, args FnArgs) bool {
 		panic("expected string")
 	}
 
-	min, err := FnGetInt(args["min"])
-	if err != nil {
-		panic(err)
+	if args["min"] != nil {
+		min, err := FnGetInt(args["min"])
+		if err != nil {
+			panic(err)
+		}
+		if len(cmp) < int(min) {
+			return false
+		}
 	}
 
-	max, err := FnGetInt(args["max"])
-	if err != nil {
-		panic(err)
-	}
-
-	if len(cmp) < int(min) {
-		return false
-	}
-
-	if len(cmp) > int(max) {
-		return false
+	if args["max"] != nil {
+		max, err := FnGetInt(args["max"])
+		if err != nil {
+			panic(err)
+		}
+		if len(cmp) > int(max) {
+			return false
+		}
 	}
 
 	return true
