@@ -79,7 +79,7 @@ func FnHash(ctx Context, args FnArgs) bool {
 
 func FnCount(ctx Context, args FnArgs) bool {
 	k := reflect.TypeOf(ctx.Value).Kind()
-	if k != reflect.Slice {
+	if k != reflect.Slice && k != reflect.Map {
 		panic(fmt.Sprintf("expected slice, got %s", k))
 	}
 	s := reflect.ValueOf(ctx.Value)
