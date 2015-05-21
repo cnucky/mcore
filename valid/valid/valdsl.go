@@ -1,3 +1,8 @@
+/*
+ * TODO:
+ * clean this token parser.
+ * add syntax checker.
+ */
 package valid
 
 import (
@@ -7,8 +12,6 @@ import (
 const (
 	MAX_RETURNS = 100
 )
-
-//"errors"
 
 /* call context */
 type Valdsl struct {
