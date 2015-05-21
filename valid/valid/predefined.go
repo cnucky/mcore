@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
+	"encoding/base64"
 )
 
 // Validation regexps for type=...
@@ -61,6 +62,13 @@ func FnHash(ctx Context, args FnArgs) bool {
 			return false
 		}
 
+		return true
+
+	case "base64":
+		_, e := base64.StdEncoding.DecodeString(cmp)
+		if e != nil {
+			return false
+		}
 		return true
 	default:
 		panic(fmt.Sprintf("invalid hash %s", t))
