@@ -1,6 +1,9 @@
 package valid
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"github.com/xsnews/mcore/valid/valid"
 	"testing"
 )
@@ -33,7 +36,7 @@ type Input struct {
 	Added2 *int64 `validate:"def(type=uint)"`
 }
 
-func TestParser(t *testing.T) {
+func data() *Input {
 	s := &Input{}
 	s.Email = "hello@world.test"
 	s.Role = "admin"
@@ -45,5 +48,22 @@ func TestParser(t *testing.T) {
 	var a int64 = -10
 	s.Added = &a
 
-	valid.Validate(s)
+	return s
+}
+
+func TestParser(t *testing.T) {
+	s := data()
+	ok, msg := valid.Validate(s)
+	if !ok {
+		t.Error("Validation failed: " + fmt.Sprintf("%+v", msg))
+	}
+}
+
+func TestJson(t *testing.T) {
+	s := data()
+	var buf bytes.Buffer
+	if e := json.NewEncoder(&buf).Encode(&s); e != nil {
+		panic(e)
+	}
+	// TODO: Finish
 }
