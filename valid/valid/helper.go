@@ -1,6 +1,7 @@
 package valid
 
 import (
+	"encoding/json"
 	"github.com/gorilla/schema"
 	"net/http"
 	"reflect"
@@ -91,8 +92,13 @@ func Validate(t interface{}) (bool, map[string][]string) {
 }
 
 func ParseForm(input interface{}, r *http.Request) error {
-	r.ParseForm()
-	decoder := schema.NewDecoder()
-	err := decoder.Decode(input, r.PostForm)
-	return err
+	if e := r.ParseForm(); e != nil {
+		return e
+	}
+	return schema.NewDecoder().Decode(input, r.PostForm)
+}
+
+func ParseJson(input interface{}, r *http.Request) error {
+	defer r.Body.Close()
+	return json.NewDecoder(r.Body).Decode(input)
 }
