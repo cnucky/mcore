@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"regexp"
 	"encoding/base64"
+	"strings"
 )
 
 // Validation regexps for type=...
@@ -14,6 +15,7 @@ func init() {
 	Fns = map[string]FnValidate{
 		"len":    FnLen,
 		"type":   FnType,
+		"csv":    FnCsv,
 		"reqif":  FnReqif,
 		"onlyif": FnOnlyIf,
 		"oneof":  FnOneOf,
@@ -255,4 +257,28 @@ func FnLen(ctx Context, args FnArgs) bool {
 	}
 
 	return true
+}
+
+func FnCsv(ctx Context, args FnArgs) bool {
+	cmp, ok := ctx.Value.(string)
+	if !ok {
+		panic("expected string")
+	}
+	sep := ","
+	if args["sep"] != nil {
+		sep = args["sep"].(string)
+	}
+
+	allOk := true
+	for _, s := range strings.Split(cmp, sep) {
+		s = strings.TrimSpace(s)
+		ok = FnDef(
+			Context{Value: s},
+			map[string]interface{}{"type": args["type"]},
+		)
+		if !ok {
+			allOk = ok
+		}
+	}
+	return allOk
 }
