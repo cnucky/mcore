@@ -106,11 +106,17 @@ func FnCount(ctx Context, args FnArgs) bool {
 func FnDef(ctx Context, args FnArgs) bool {
 	t, _ := FnGetStr(args["type"])
 	switch t {
-	case "ascii":
+	// Slugs are generally entirely lowercase, with accented characters replaced by
+	// letters from the English alphabet and whitespace characters replaced by a dash or an underscore
+	// http://en.wikipedia.org/wiki/Semantic_URL#Slug
+	case "slug":
 		cmp, ok := ctx.Value.(string)
 		if !ok {
 			for i := 0; i < len(cmp); i++ {
-				if cmp[i] >= 'A' && cmp[i] <= 'Z' {
+				if cmp[i] >= 'a' && cmp[i] <= 'z' {
+					continue
+				}
+				if cmp[i] == '_' || cmp[i] == '-' {
 					continue
 				}
 
