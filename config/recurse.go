@@ -37,6 +37,10 @@ func Json(basedir string, x interface{}) error {
 		panic(err)
 	}
 
+	if len(files) == 0 {
+		return nil
+	}
+
 	// Read content from all files
 	data := make(map[string]string)
 	for x, y := range files {
@@ -50,11 +54,6 @@ func Json(basedir string, x interface{}) error {
 			panic(err)
 		}
 		data[x] = string(content)
-	}
-
-	// No files found
-	if len(data) == 0 {
-		return nil
 	}
 
 	// Create k:v json from files, refactor this to a stream
