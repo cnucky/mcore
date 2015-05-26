@@ -52,13 +52,6 @@ func LoadJsonD(basedir string, x interface{}) error {
 	// Create one big json string where every file is a key
 	jsonCollection := ""
 	for filename, fullpath := range filelist {
-		// Check if we can open file
-		fh, err := os.Open(fullpath)
-		if err != nil {
-			return err
-		}
-		defer fh.Close()
-
 		// Only load directory.d/file.Extension
 		s := strings.Split(filename, Extension)
 		if len(s) != 2 {
