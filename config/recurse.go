@@ -61,32 +61,34 @@ func LoadJsonD(basedir string, x interface{}) error {
 		data[x] = string(content)
 	}
 
-	// Create k:v json from files, refactor this to a stream
-	content := "{\n"
+	// Create one big json string where every file is a key
+	jsonCollection := ""
 	i := 0
 	for fn, c := range data {
 		i++
 
 		// Only load directory.d/file.Extension
 		s := strings.Split(fn, Extension)
-		if len(s) == 1 {
+		if len(s) != 2 {
 			panic("found an invalid file in directory")
 		}
 
 		// Add to our json structure with key "filename"
-		content = content + fmt.Sprintf("\"%s\": %s", s[0], c)
+		jsonCollection = jsonCollection + fmt.Sprintf("\"%s\": %s", s[0], c)
 		if len(data) == i {
 			// We're done, don't add trailing comma
 			break
 		}
 
 		// Add trailing comma
-		content = content + ","
+		jsonCollection = jsonCollection + ",\n"
 	}
-	content = content + "}\n"
+
+	// Finish json structure
+	jsonCollection = "{\n" + jsonCollection + "}\n"
 
 	// Unmarshal json
-	err = json.Unmarshal([]byte(content), &x)
+	err = json.Unmarshal([]byte(jsonCollection), &x)
 	if err != nil {
 		panic(err)
 	}
