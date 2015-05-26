@@ -50,7 +50,7 @@ func LoadJsonD(basedir string, x interface{}) error {
 	}
 
 	// Create one big json string where every file is a key
-	jsonCollection := ""
+	jsonCollection := []string{}
 	for filename, fullpath := range filelist {
 		// Only load directory.d/file.Extension
 		s := strings.Split(filename, Extension)
@@ -65,16 +65,11 @@ func LoadJsonD(basedir string, x interface{}) error {
 		}
 
 		// Add to our json structure with key "filename"
-		jsonCollection = jsonCollection + fmt.Sprintf(`"%s": %s`, s[0], data)
-		// Add trailing comma
-		jsonCollection = jsonCollection + ","
+		jsonCollection = append(jsonCollection, fmt.Sprintf(`"%s": %s`, s[0], data))
 	}
 
-	// Finish json structure, remove trailing comma
-	jsonCollection = "{\n" + jsonCollection[:len(jsonCollection)-1] + "}\n"
-
 	// Unmarshal json
-	err = json.Unmarshal([]byte(jsonCollection), &x)
+	err = json.Unmarshal([]byte(fmt.Sprintf("{%s}", strings.Join(jsonCollection, ","))), &x)
 	if err != nil {
 		return err
 	}
