@@ -12,11 +12,20 @@ import (
 )
 
 var (
-	Extension = ".json"
+	Extension    = ".json"
+	ExtensionDir = ".d"
 )
 
 func files(basedir string) (map[string]string, error) {
 	out := make(map[string]string)
+
+	// Check if directory is named directory.d
+	s := strings.Split(basedir, ExtensionDir)
+	if len(s) != 2 {
+		return out, errors.New(fmt.Sprintf("Config directory must be named 'directory%s'", ExtensionDir))
+	}
+
+	// Parse each file in basedir
 	err := filepath.Walk(basedir, func(path string, f os.FileInfo, err error) error {
 		if err != nil {
 			return err
