@@ -34,8 +34,6 @@ type Host struct {
   Port int
 }
 
-type Hosts map[string]Host
-
 func main() {
   hosts := make(map[string]Host)
 

@@ -21,14 +21,17 @@ func files(basedir string) (map[string]string, error) {
 		if err != nil {
 			return err
 		}
+
+		if basedir == path {
+			// Ignore basedir
+			return nil
+		}
+
 		if f.IsDir() {
 			// Only read files
-			return nil
+			return errors.New("LoadJsonD does not support directories within directories")
 		}
-		if basedir == path {
-			// Ignore
-			return nil
-		}
+
 		log.Debug("Found config=%s", path)
 		out[f.Name()] = path
 		return nil
@@ -59,20 +62,12 @@ func LoadJsonD(basedir string, x interface{}) error {
 		}
 
 		// Load content from file
-		data, err := ioutil.ReadFile(fullpath)
-		if err != nil {
-			return err
+		if data, err := ioutil.ReadFile(fullpath); err == nil {
+			// Add to our json structure with key "filename"
+			jsonCollection = append(jsonCollection, fmt.Sprintf(`"%s": %s`, s[0], data))
 		}
-
-		// Add to our json structure with key "filename"
-		jsonCollection = append(jsonCollection, fmt.Sprintf(`"%s": %s`, s[0], data))
 	}
 
 	// Unmarshal json
-	err = json.Unmarshal([]byte(fmt.Sprintf("{%s}", strings.Join(jsonCollection, ","))), &x)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return json.Unmarshal([]byte(fmt.Sprintf("{%s}", strings.Join(jsonCollection, ","))), &x)
 }
