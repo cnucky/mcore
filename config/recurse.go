@@ -7,6 +7,11 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
+)
+
+var (
+	Extension = ".json"
 )
 
 func Files(basedir string) (map[string]string, error) {
@@ -31,7 +36,7 @@ func Files(basedir string) (map[string]string, error) {
 	return out, err
 }
 
-func Json(basedir string, x interface{}) error {
+func LoadJsonD(basedir string, x interface{}) error {
 	files, err := Files(basedir)
 	if err != nil {
 		panic(err)
@@ -58,10 +63,26 @@ func Json(basedir string, x interface{}) error {
 
 	// Create k:v json from files, refactor this to a stream
 	content := "{\n"
+	i := 0
 	for fn, c := range data {
-		content = content + fmt.Sprintf("\"%s\": %s,", fn, c)
+		i++
+
+		// Only load directory.d/file.Extension
+		s := strings.Split(fn, Extension)
+		if len(s) == 1 {
+			panic("found an invalid file in directory")
+		}
+
+		// Add to our json structure with key "filename"
+		content = content + fmt.Sprintf("\"%s\": %s", s[0], c)
+		if len(data) == i {
+			// We're done, don't add trailing comma
+			break
+		}
+
+		// Add trailing comma
+		content = content + ","
 	}
-	content = content[0 : len(content)-1] // Remove trailing ,
 	content = content + "}\n"
 
 	// Unmarshal json
