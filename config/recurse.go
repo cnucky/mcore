@@ -1,5 +1,5 @@
 package config
-
+// Read all JSON-files from a directory
 import (
 	"encoding/json"
 	"errors"
@@ -16,6 +16,8 @@ var (
 	ExtensionDir = ".d"
 )
 
+// Return all files available in basedir.
+// WARN: Function forces dir to only contain files (dir means error)
 func files(basedir string) (map[string]string, error) {
 	out := make(map[string]string)
 
@@ -49,6 +51,10 @@ func files(basedir string) (map[string]string, error) {
 	return out, err
 }
 
+// Read files from basedir and convert JSON to map[filename]type
+// Note: Dir should end with .d suffix (Debian/XSNews convention)
+// Note: Only .json-files should exist in this dir
+// Note: Subdirs not allowed in basedir
 func LoadJsonD(basedir string, x interface{}) error {
 	// Get list of files
 	filelist, err := files(basedir)
