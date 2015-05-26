@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
-	"encoding/base64"
 	"strings"
 )
 
@@ -67,11 +66,20 @@ func FnHash(ctx Context, args FnArgs) bool {
 		return true
 
 	case "base64":
-		_, e := base64.StdEncoding.DecodeString(cmp)
-		if e != nil {
+		for i := 0; i < len(cmp); i++ {
+			if cmp[i] >= 'A' && cmp[i] <= 'Z' {
+				continue
+			} else if cmp[i] >= 'a' && cmp[i] <= 'z' {
+				continue
+			} else if cmp[i] >= '0' && cmp[i] <= '9' {
+				continue
+			} else if cmp[i] == '+' || cmp[i] == '/' || cmp[i] == '=' {
+				continue
+			}
 			return false
 		}
 		return true
+
 	default:
 		panic(fmt.Sprintf("invalid hash %s", t))
 	}
