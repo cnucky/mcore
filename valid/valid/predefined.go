@@ -167,6 +167,24 @@ func FnDef(ctx Context, args FnArgs) bool {
 		return false
 	case "date":
 		return false
+
+	// Plain is regular ASCII input from Western keyboard
+	case "plain":
+		cmp, ok := ctx.Value.(string)
+		if !ok {
+			return false
+		}
+
+		if len(cmp) == 0 {
+			return false
+		}
+		for i := 0; i < len(cmp); i++ {
+			if cmp[i] >= ' ' && cmp[i] <= '~' {
+				continue
+			}
+
+			return false
+		}
 		return true
 
 	default:
