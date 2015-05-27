@@ -13,6 +13,9 @@ Simple string interval parser. Converting '1w', time.Now() to next week's time.T
 * log
 Abstract logging policy (stdout/stderr/prefix/debugmsg)
 
+* metrics
+Abstract counter and gauge implementations
+
 * valid
 Validate user input by validating the in-memory struct's annotations.
 
