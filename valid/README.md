@@ -11,6 +11,39 @@ then creating tokens from the tags (see: valid/lexer.go), actual validation is t
 
 # EXAMPLES
 * See tests/valid_test.go
+* 
+
+# CP
+```go
+import (
+	"github.com/xsnews/mcore/valid/valid"
+	"github.com/xsnews/webutils/httpd"
+)
+
+...
+
+type LoginInput struct {
+	Email string `validate:"def(type=email),onlyif(Sys=[std])"`
+	Ldap  string `validate:"def(type=slug),onlyif(Sys=[ldap])"`
+	Pass  string `validate:"def(type=)"`
+	Sys   string `validate:"oneof(enum=[std,ldap])"`
+}
+
+...
+
+	var (
+		input LoginInput
+	)
+
+	if e := valid.ParseJson(&input, r); e != nil {
+		httpd.Error(w, e, "Input invalid")
+		return
+	}
+	if ok, missing := valid.Validate(n); !ok {
+		httpd.Error(w, nil, "Input invalid: "+fmt.Sprintf("%+v", missing))
+		return
+	}
+```
 
 # TODO
 * Refactor valdsl.go token parser.
