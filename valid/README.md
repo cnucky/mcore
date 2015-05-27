@@ -13,7 +13,7 @@ then creating tokens from the tags (see: valid/lexer.go), actual validation is t
 * See tests/valid_test.go
 * 
 
-# CP
+# Copy/Paste
 ```go
 import (
 	"github.com/xsnews/mcore/valid/valid"
