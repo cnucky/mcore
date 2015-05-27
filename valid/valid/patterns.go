@@ -1,5 +1,5 @@
+// Patterns contains value compare functions.
 package valid
-
 import (
 	"fmt"
 	"reflect"
@@ -13,7 +13,6 @@ var Regexps map[string]*regexp.Regexp
 func init() {
 	Fns = map[string]FnValidate{
 		"len":    FnLen,
-		"type":   FnType,
 		"csv":    FnCsv,
 		"reqif":  FnReqif,
 		"onlyif": FnOnlyIf,
@@ -30,10 +29,6 @@ func initRegex() {
 	Regexps = map[string]*regexp.Regexp{
 		"email": regexp.MustCompile(`.+@.+\..{2,}`),
 	}
-}
-
-func FnEq(ctx Context, args FnArgs) bool {
-	return false
 }
 
 func FnHash(ctx Context, args FnArgs) bool {
@@ -193,73 +188,6 @@ func FnDef(ctx Context, args FnArgs) bool {
 			panic(fmt.Sprintf("type %s not implemented", t))
 		}
 		return regx.Match([]byte(ctx.Value.(string)))
-	}
-
-	return false
-}
-
-func FnOnlyIf(ctx Context, args FnArgs) bool {
-	s := reflect.ValueOf(ctx.Ctx).Elem()
-	for k, cmp := range args {
-		fld := s.FieldByName(k)
-		if !fld.IsValid() {
-			panic("field missing")
-		}
-
-		cmp2 := fmt.Sprintf("%v", fld.Interface())
-
-		enum, _ := FnGetStrSlice(cmp)
-		for _, cmp := range enum {
-			if cmp == cmp2 {
-				/* Todo: generic value reflect */
-				if ctx.Value.(int64) > 0 {
-					return true
-				} else {
-					return false
-				}
-			}
-		}
-	}
-
-	return false
-}
-
-func FnOneOf(ctx Context, args FnArgs) bool {
-	cmp, ok := ctx.Value.(string)
-	if !ok {
-		panic("expected string")
-	}
-
-	enum, _ := FnGetStrSlice(args["enum"])
-	for _, cmp2 := range enum {
-		if cmp == cmp2 {
-			return true
-		}
-	}
-
-	return false
-}
-
-func FnReqif(ctx Context, args FnArgs) bool {
-	s := reflect.ValueOf(ctx.Ctx).Elem()
-	for k, cmp := range args {
-		fld := s.FieldByName(k)
-		if !fld.IsValid() {
-			panic("field missing")
-		}
-
-		cmp2 := fmt.Sprintf("%v", fld.Interface())
-		fmt.Println(cmp2, cmp)
-		break
-	}
-
-	return true
-}
-
-func FnType(ctx Context, args FnArgs) bool {
-	fmt, _ := FnGetStr(args["fmt"])
-	if fmt == "" {
-		panic("fmt: missing")
 	}
 
 	return false
