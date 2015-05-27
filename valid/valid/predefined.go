@@ -33,7 +33,7 @@ func initRegex() {
 }
 
 func FnEq(ctx Context, args FnArgs) bool {
-	return true
+	return false
 }
 
 func FnHash(ctx Context, args FnArgs) bool {
@@ -160,6 +160,7 @@ func FnDef(ctx Context, args FnArgs) bool {
 
 		return false
 	case "date":
+		return false
 		return true
 
 	default:
@@ -237,7 +238,7 @@ func FnType(ctx Context, args FnArgs) bool {
 		panic("fmt: missing")
 	}
 
-	return true
+	return false
 }
 
 func FnLen(ctx Context, args FnArgs) bool {
