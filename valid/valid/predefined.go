@@ -87,9 +87,12 @@ func FnHash(ctx Context, args FnArgs) bool {
 func FnCount(ctx Context, args FnArgs) bool {
 	k := reflect.TypeOf(ctx.Value).Kind()
 	if k != reflect.Slice && k != reflect.Map {
-		panic(fmt.Sprintf("expected slice, got %s", k))
+		panic(fmt.Sprintf("expected slice/map, got %s", k))
 	}
 	s := reflect.ValueOf(ctx.Value)
+	if args["min"] == nil && args["max"] == nil {
+		panic("no min/max given")
+	}
 
 	if args["min"] != nil {
 		min, err := FnGetInt(args["min"])
@@ -244,6 +247,9 @@ func FnLen(ctx Context, args FnArgs) bool {
 	cmp, ok := ctx.Value.(string)
 	if !ok {
 		panic("expected string")
+	}
+	if args["min"] == nil && args["max"] == nil {
+		panic("no min/max given")
 	}
 
 	if args["min"] != nil {
