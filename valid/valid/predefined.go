@@ -307,7 +307,6 @@ func FnCsv(ctx Context, args FnArgs) bool {
 		sep = args["sep"].(string)
 	}
 
-	allOk := true
 	for _, s := range strings.Split(cmp, sep) {
 		s = strings.TrimSpace(s)
 		ok = FnDef(
@@ -315,8 +314,8 @@ func FnCsv(ctx Context, args FnArgs) bool {
 			map[string]interface{}{"type": args["type"]},
 		)
 		if !ok {
-			allOk = false
+			return false
 		}
 	}
-	return allOk
+	return true
 }
