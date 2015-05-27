@@ -54,12 +54,11 @@ func FnHash(ctx Context, args FnArgs) bool {
 		}
 
 		for i := 0; i < len(cmp); i++ {
-			if cmp[i] >= 'A' && cmp[i] <= 'F' {
+			if cmp[i] >= 'a' && cmp[i] <= 'f' {
 				continue
 			} else if cmp[i] >= '0' && cmp[i] <= '9' {
 				continue
 			}
-
 			return false
 		}
 
