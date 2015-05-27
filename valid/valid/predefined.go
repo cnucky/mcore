@@ -28,7 +28,7 @@ func init() {
 
 func initRegex() {
 	Regexps = map[string]*regexp.Regexp{
-		"email": regexp.MustCompile(`.+@.+\..+`),
+		"email": regexp.MustCompile(`.+@.+\..{2,}`),
 	}
 }
 
