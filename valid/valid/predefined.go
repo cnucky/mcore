@@ -126,18 +126,22 @@ func FnDef(ctx Context, args FnArgs) bool {
 	case "slug":
 		cmp, ok := ctx.Value.(string)
 		if !ok {
-			for i := 0; i < len(cmp); i++ {
-				if cmp[i] >= 'a' && cmp[i] <= 'z' {
-					continue
-				}
-				if cmp[i] == '_' || cmp[i] == '-' {
-					continue
-				}
-
-				return false
-			}
+			return false
 		}
 
+		if len(cmp) == 0 {
+			return false
+		}
+		for i := 0; i < len(cmp); i++ {
+			if cmp[i] >= 'a' && cmp[i] <= 'z' {
+				continue
+			}
+			if cmp[i] == '_' || cmp[i] == '-' {
+				continue
+			}
+
+			return false
+		}
 		return true
 	case "udecimal":
 		cmp, ok := ctx.Value.(float64)
