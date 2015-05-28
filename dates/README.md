@@ -3,6 +3,10 @@ Dates pattern lib
 Simple date 'pattern' parser that extends time.ParseDuration with additional units d, M, y.
 
 ```go
+import (
+	"github.com/xsnews/mcore/dates"
+)
+
 base := time.Date(2005, 1, 1, 0, 0, 0, 0, time.UTC)
 out, e := ParseDuration("-1y5d6h", base)
 if e != nil {
