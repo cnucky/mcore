@@ -1,3 +1,5 @@
+# filesmatch - Recursive read dir by glob pattern
+http://golang.org/pkg/path/filepath/#Match
 
 ```go
 package main
