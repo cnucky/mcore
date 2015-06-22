@@ -29,7 +29,7 @@ func Match(pathGlob string) (map[string]string, error) {
 			return nil
 		}
 
-		log.Debug("Found file=%s", path)
+		log.Debug("Glob match file=%s", path)
 		out[f.Name()] = path
 		return nil
 	})
