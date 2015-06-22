@@ -3,7 +3,6 @@ package dates
 import (
 	"time"
 	"errors"
-	"github.com/xsnews/mcore/log"
 )
 
 const MAXITER = 50
@@ -20,11 +19,10 @@ func DaysInMonth(t time.Time) ([]time.Time, error) {
 	for {
 		i++
 		if i == MAXITER {
-			return nil, errors.New("Broken for-loop")
+			return nil, errors.New("DaysInMonth: Broken for-loop")
 		}
 		if initialMonth != t.Month() {
 			// And we're done
-			log.Debug("Finished opening %d files", i)
 			break
 		}
 		output = append(output, t)
@@ -36,4 +34,32 @@ func DaysInMonth(t time.Time) ([]time.Time, error) {
 	}
 
 	return output, nil
+}
+
+func MonthsInYear(t time.Time) ([]time.Time, error) {
+	var (
+		output []time.Time
+		e error
+	)
+
+	i := 0
+	initialYear := t.Year()
+	for {
+		i++
+		if i == MAXITER {
+			return nil, errors.New("MonthsInYear: Broken for-loop")
+		}
+		if initialYear != t.Year() {
+			// And we're done
+			break
+		}
+		output = append(output, t)
+
+		t, e = ParseDuration("1M", t)
+		if e != nil {
+			return nil, e
+		}
+	}
+
+	return output, nil	
 }

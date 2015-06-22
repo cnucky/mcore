@@ -55,7 +55,7 @@ func ParseDuration(str string, initial time.Time) (time.Time, error) {
 				// year
 				now = now.AddDate(int(i), 0, 0)
 			} else {
-				if c == 'm' && s[2] == 's' {
+				if c == 'm' && len(s) > 1 && s[2] == 's' {
 					// ms
 					d, e := time.ParseDuration(val + "ms")
 					if e != nil {
@@ -63,7 +63,7 @@ func ParseDuration(str string, initial time.Time) (time.Time, error) {
 					}
 					now = now.Add(d)
 
-				} else if (c == 'm' && s[2] == 's') || c == 's' || c == 'm' || c == 'h' {
+				} else if (c == 'm' && len(s) > 1 && s[2] == 's') || c == 's' || c == 'm' || c == 'h' {
 					d, e := time.ParseDuration(val + string(c))
 					if e != nil {
 						return now, e

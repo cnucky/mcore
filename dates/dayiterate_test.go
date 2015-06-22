@@ -61,3 +61,32 @@ func TestDayIterate(t *testing.T) {
 		}
 	}
 }
+
+TestBrokenDayIterate(t *testing.T) {
+	begin, e := time.Parse("2006-01-02", "2015-01-29")
+	if e != nil {
+		t.Error(e)
+		return
+	}
+	days, e := DaysInMonth(begin)
+	if e != nil {
+		t.Error(e)
+		return
+	}
+	compare := map[string]string{
+		"2015-01-29": "",
+		"2015-01-30": "",
+		"2015-01-31": "",
+	}
+
+	if len(days) != len(compare) {
+		t.Errorf("Missing dates?")
+	}
+	for _, day := range days {
+		fmt := day.Format("2006-01-02")
+		_, ok := compare[fmt]
+		if !ok {
+			t.Errorf("Date should not exist: %s", fmt)
+		}
+	}
+}
