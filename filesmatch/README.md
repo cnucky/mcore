@@ -24,3 +24,7 @@ Example output
 map[golang:/data01/golang var:/data01/var]
 
 ```
+
+TODO
+===============
+* Slow because of recursive scan, patterns like /path/* should not scan /path/a/b/c/d/*
