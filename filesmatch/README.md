@@ -10,7 +10,10 @@ import (
 )
 
 func main() {
-        f, _ := filesmatch.Match("/data01/*")
+        f, e := filesmatch.Match("/data01/*")
+        if e != nil {
+                panic(e)
+        }
         fmt.Println(f)
 }
 ```
