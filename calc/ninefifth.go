@@ -17,27 +17,27 @@ func (n *NineFifth) Add(values []int64, autosort bool) int64 {
 		sort.Ints(n.Values)
 	}
 	length := len(values)
-	fivePercent := int(float64(length)/100*5) /* 5% to steps */
+	fivePercent := int(float64(length) / 100 * 5) /* 5% to steps */
 
+	n.Values = append(n.Values, values...)
 	if len(n.Values) == 0 {
 		return 0
 	}
-	nineFifth := values[ length-fivePercent-1 ]
+	nineFifth := values[length-fivePercent-1]
 
-	n.Values = append(n.Values, values...)
 	return nineFifth
 }
 
 // Get 95th from summary
 func (n *NineFifth) Total95th() int64 {
 	length := len(n.Values)
-	fivePercent := int(float64(length)/100*5) /* 5% to steps */
+	fivePercent := int(float64(length) / 100 * 5) /* 5% to steps */
 
 	sort.Ints(n.Values)
 	if len(n.Values) == 0 {
 		return 0
 	}
-	return n.Values[ length-fivePercent-1 ]
+	return n.Values[length-fivePercent-1]
 }
 
 // Get new 95th calculator.
