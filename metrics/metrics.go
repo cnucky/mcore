@@ -5,7 +5,7 @@
 package metrics
 
 import (
-	"github.com/xsnews/go-metrics" // diff rcrowley/go-metrics
+	"github.com/itshosted/go-metrics" // diff rcrowley/go-metrics
 	"net"
 	"time"
 	"errors"

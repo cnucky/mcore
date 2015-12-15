@@ -2,7 +2,7 @@
 package calc
 
 import (
-	"github.com/xsnews/mcore/sort"
+	"github.com/itshosted/mcore/sort"
 )
 
 type NineFifth struct {

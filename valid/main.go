@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/xsnews/mcore/valid/valid"
+	"github.com/itshosted/mcore/valid/valid"
 )
 
 //Price    float64 `validate:"def(type=udecimal)"` // allow: 5,2 deny: -5,2 5.2

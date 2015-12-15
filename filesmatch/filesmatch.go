@@ -1,7 +1,7 @@
 package filesmatch
 
 import (
-	"github.com/xsnews/mcore/log"
+	"github.com/itshosted/mcore/log"
 	"path/filepath"
 	"os"
 )

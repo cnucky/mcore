@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/xsnews/mcore/valid/valid"
+	"github.com/itshosted/mcore/valid/valid"
 	"testing"
 )
 

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/xsnews/mcore/log"
+	"github.com/itshosted/mcore/log"
 	"io/ioutil"
 	"os"
 	"path/filepath"
